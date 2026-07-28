@@ -2,8 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
 import { WebsiteType } from "@/configs/type";
 import { Globe } from "lucide-react";
@@ -54,14 +52,6 @@ const WebsiteCard = ({ website }: WebsiteCardProps) => {
                 right: 12,
               }}
             >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
               <Area
                 dataKey="desktop"
                 type="natural"
@@ -71,8 +61,7 @@ const WebsiteCard = ({ website }: WebsiteCardProps) => {
               />
             </AreaChart>
           </ChartContainer>
-          <h2 className='text-sm mt-2'><strong>24 visitors</strong></h2>
-
+          <h2 className='text-sm mt-2'><strong>24 </strong>visitors</h2>
         </CardContent>
       </Card>
     </div>

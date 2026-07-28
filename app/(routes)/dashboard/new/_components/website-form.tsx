@@ -68,9 +68,12 @@ function WebsiteForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const websiteId = crypto.randomUUID();
+
   const onFormSubmit = async (e: any) => {
     e.preventDefault();
     console.log({
+      websiteId,
       domain,
       timezone,
       enableLocalhostTracking,
@@ -78,23 +81,24 @@ function WebsiteForm() {
     setLoading(true);
 
     const result = await axios.post("/api/website", {
-      websiteId: crypto.randomUUID(),
+      websiteId,
       domain,
       timezone,
       enableLocalhostTracking,
     });
-    console.log(result.data);
 
-    if (result?.data?.message === "Website already exists") {
+    console.log(result.data);
+    if (result.data.data) {
       router.push(
         `/dashboard/new?step=script&websiteId=${result?.data?.data?.websiteId}&domain=${result?.data?.data?.domain}`,
+      );
+    } else if (!result?.data?.message) {
+      router.push(
+        `/dashboard/new?step=script&websiteId=${websiteId}&domain=${domain}`,
       );
     }
-    if (result?.data?.message === "Website created successfully") {
-      toast.success("Website created successfully");
-      router.push(
-        `/dashboard/new?step=script&websiteId=${result?.data?.data?.websiteId}&domain=${result?.data?.data?.domain}`,
-      );
+    else {
+      toast.error(result?.data?.message || "An error occurred");
     }
 
     setLoading(false);
@@ -108,7 +112,7 @@ function WebsiteForm() {
         </CardHeader>
         <Separator />
         <CardContent>
-          <form className="mt-5" onSubmit={(e) => onFormSubmit(e)}>
+          <form className="mt-3" onSubmit={(e) => onFormSubmit(e)}>
             <label className="text-sm">Domain</label>
             <InputGroup className="mt-2">
               <InputGroupInput
@@ -122,7 +126,7 @@ function WebsiteForm() {
                 <span> https://</span>
               </InputGroupAddon>
             </InputGroup>
-            <div className="mt-5">
+            <div className="mt-3">
               <label className="text-sm">Timezone</label>
               <div className="mt-2">
                 <Select required onValueChange={(value) => setTimezone(value)}>
@@ -173,7 +177,7 @@ function WebsiteForm() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className=" flex items-center gap-2 mt-5 w-full">
+              <div className="flex items-center gap-2 mt-5 w-full">
                 <Checkbox
                   onCheckedChange={(e) =>
                     setEnableLocalhostTracking(e as boolean)
@@ -183,15 +187,10 @@ function WebsiteForm() {
                   Enable localhost tracking for development
                 </span>
               </div>
-              {!loading ? (
-                <Button type="submit" className="w-full mt-5 cursor-pointer ">
-                  <Plus /> Website
-                </Button>
-              ) : (
-                <Button disabled className="w-full mt-5 cursor-pointer ">
-                  <Loader2Icon className="animate-spin" /> Website
-                </Button>
-              )}
+              <Button className="mt-5 w-full" disabled={loading}>
+                {loading ? <Loader2Icon className="animate-spin" /> : <Plus />}{" "}
+                Add Website
+              </Button>
             </div>
           </form>
         </CardContent>
