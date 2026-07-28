@@ -14,3 +14,28 @@ export const websiteTable = pgTable("websites", {
     enableLocalhostTracking: boolean().default(false),
     userEmail:varchar({ length: 255 }).notNull(),
 });
+
+export const pageViewTable = pgTable("page_views", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    visitorId: varchar({ length: 255 }),
+    websiteId: varchar({ length: 255 }).notNull(),
+    domain: varchar({ length: 255 }).notNull(),
+    url: varchar({ length: 2048 }),
+    type: varchar({ length: 255 }).notNull(),
+    referrer: varchar({ length: 2048 }),
+    entryTime: varchar({ length: 100 }),
+    exitTime: varchar({ length: 100 }),
+    totalActiveTime: integer(),
+    urlParams: varchar({ length: 2048 }),
+    utm_source: varchar({ length: 255 }),
+    utm_medium: varchar({ length: 255 }),
+    utm_campaign: varchar({ length: 255 }),
+    device: varchar(),
+    os: varchar(),
+    browser: varchar(),
+    ipAddress: varchar(),
+    city: varchar(),
+    country: varchar(),
+    region: varchar(),
+    refParams: varchar(),
+})
