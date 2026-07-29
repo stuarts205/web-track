@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { WebsiteType } from "@/configs/type";
+import { WebsiteInfoType, WebsiteType } from "@/configs/type";
 import axios from "axios";
 import WebsiteCard from "./_components/website-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Dashboard = () => {
-  const [websiteList, setWebsiteList] = useState<WebsiteType[]>([]);
+  const [websiteList, setWebsiteList] = useState<WebsiteInfoType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const Dashboard = () => {
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 gap-5 lg:grid-cols-3 mt-5'>
             {websiteList?.map((website, index) => (
-              <WebsiteCard website={website} key={index} />
+              <WebsiteCard websiteinfo={website} key={index} />
             ))}
           </div>
         )}
