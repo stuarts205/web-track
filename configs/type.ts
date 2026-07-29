@@ -6,3 +6,24 @@ export type WebsiteType = {
     enableLocalhostTracking:boolean,
     userEmail:string,
 }
+
+export type WebsiteInfoType = {
+    website: WebsiteType,
+    analytics: AnalyticsType
+}
+
+export type AnalyticsType = {
+    avgActiveTime: number,
+    totalActiveTime: number,
+    totalSessions: number,
+    totalVisitors: number,
+    hourlyVisitors: HourlyVisitorsType[],
+    last24HoursVisitors: number,
+}
+
+export type HourlyVisitorsType = {
+    count: number,
+    date: string,
+    hour: number,
+    hourLabel: string,
+}

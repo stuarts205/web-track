@@ -15,7 +15,7 @@
   const websiteId = script.getAttribute("data-website-id");
   const domain = script.getAttribute("data-domain");
 
-  const entryTime = Date.now();
+  const entryTime = Math.floor(Date.now() / 1000);
   const referrer = document.referrer || "Direct";
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -41,8 +41,6 @@
     refParams,
   };
 
-  console.log("Data to be sent:", data);
-
   fetch(`http://localhost:3000/api/track`, {
     method: "POST",
     headers: {
@@ -51,12 +49,12 @@
     body: JSON.stringify(data),
   });
 
-  let activeStartTime = Date.now();
+  let activeStartTime = Math.floor(Date.now() / 1000);
   let totalActiveTime = 0;
 
   const handleExit = () => {
-    const exitTime = Date.now();
-    totalActiveTime += exitTime - activeStartTime;
+    const exitTime = Math.floor(Date.now() / 1000);
+    totalActiveTime += Math.floor(Date.now() / 1000) - activeStartTime;
 
     fetch(`http://localhost:3000/api/track`, {
       method: "POST",

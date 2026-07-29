@@ -1,25 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-} from "@/components/ui/chart";
-import { WebsiteType } from "@/configs/type";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { WebsiteInfoType, WebsiteType } from "@/configs/type";
 import { Globe } from "lucide-react";
 import React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
 interface WebsiteCardProps {
-  website: WebsiteType;
+  websiteinfo: WebsiteInfoType;
 }
-
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
 
 const chartConfig = {
   desktop: {
@@ -28,7 +16,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const WebsiteCard = ({ website }: WebsiteCardProps) => {
+const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
+  const hourlyData = websiteinfo?.analytics?.hourlyVisitors;
+  const chartData =
+    hourlyData.length == 1 ? 
+      [
+        {
+          ...hourlyData[0],
+          hour: Number(hourlyData[0]?.hour) - 1>=0 ? Number(hourlyData[0]?.hour) - 1 : 0,
+          count: 0,
+          hourLabel: `${Number(hourlyData[0]?.hour) - 1} AM/PM`
+        }  ,
+        hourlyData[0]      
+      ] : hourlyData;
+
   return (
     <div>
       <Card>
@@ -37,7 +38,9 @@ const WebsiteCard = ({ website }: WebsiteCardProps) => {
             <div className="flex gap-2 items-center">
               <Globe className="h-8 w-8 p-2 rounded-md bg-primary text-white" />
               <h2 className="font-bold text-lg">
-                {website?.domain.replace("https://", "").replace("http://", "")}
+                {websiteinfo?.website?.domain
+                  .replace("https://", "")
+                  .replace("http://", "")}
               </h2>
             </div>
           </CardTitle>
@@ -53,7 +56,7 @@ const WebsiteCard = ({ website }: WebsiteCardProps) => {
               }}
             >
               <Area
-                dataKey="desktop"
+                dataKey="count"
                 type="natural"
                 fill="var(--color-primary)"
                 fillOpacity={0.4}
@@ -61,7 +64,10 @@ const WebsiteCard = ({ website }: WebsiteCardProps) => {
               />
             </AreaChart>
           </ChartContainer>
-          <h2 className='text-sm mt-2'><strong>24 </strong>visitors</h2>
+          <h2 className="text-sm mt-2">
+            <strong>{websiteinfo?.analytics?.last24HoursVisitors}</strong>{" "}
+            visitors
+          </h2>
         </CardContent>
       </Card>
     </div>
