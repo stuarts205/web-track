@@ -19,16 +19,20 @@ const chartConfig = {
 const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
   const hourlyData = websiteinfo?.analytics?.hourlyVisitors;
   const chartData =
-    hourlyData.length == 1 ? 
-      [
-        {
-          ...hourlyData[0],
-          hour: Number(hourlyData[0]?.hour) - 1>=0 ? Number(hourlyData[0]?.hour) - 1 : 0,
-          count: 0,
-          hourLabel: `${Number(hourlyData[0]?.hour) - 1} AM/PM`
-        }  ,
-        hourlyData[0]      
-      ] : hourlyData;
+    hourlyData.length == 1
+      ? [
+          {
+            ...hourlyData[0],
+            hour:
+              Number(hourlyData[0]?.hour) - 1 >= 0
+                ? Number(hourlyData[0]?.hour) - 1
+                : 0,
+            count: 0,
+            hourLabel: `${Number(hourlyData[0]?.hour) - 1} AM/PM`,
+          },
+          hourlyData[0],
+        ]
+      : hourlyData;
 
   return (
     <div>
@@ -53,20 +57,22 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
               margin={{
                 left: 12,
                 right: 12,
+                top: 10,
+                bottom: 10,
               }}
             >
               <Area
                 dataKey="count"
                 type="natural"
                 fill="var(--color-primary)"
-                fillOpacity={0.4}
+                fillOpacity={0}
                 stroke="var(--color-primary)"
+                strokeWidth={4}
               />
             </AreaChart>
           </ChartContainer>
           <h2 className="text-sm mt-2">
-            <strong>{websiteinfo?.analytics?.last24HoursVisitors}</strong>{" "}
-            visitors
+            <strong>{websiteinfo?.analytics?.totalVisitors}</strong> visitors
           </h2>
         </CardContent>
       </Card>
