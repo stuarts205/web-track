@@ -7,6 +7,7 @@ import { WebsiteInfoType, WebsiteType } from "@/configs/type";
 import axios from "axios";
 import WebsiteCard from "./_components/website-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
 
 const Dashboard = () => {
   const [websiteList, setWebsiteList] = useState<WebsiteInfoType[]>([]);
@@ -18,7 +19,8 @@ const Dashboard = () => {
 
   const getUserWebsites = async () => {
     setLoading(true);
-    const result = await axios.get("/api/website");
+    const tooday = format(new Date(), "yyyy-MM-dd");
+    const result = await axios.get(`/api/website?from=${tooday}&to=${tooday}`);
     setWebsiteList(result.data);
     setLoading(false);
   };

@@ -18,7 +18,6 @@ export type AnalyticsType = {
     totalSessions: number,
     totalVisitors: number,
     hourlyVisitors: HourlyVisitorsType[],
-    last24HoursVisitors: number,
 }
 
 export type HourlyVisitorsType = {
