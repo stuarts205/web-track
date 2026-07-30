@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { WebsiteInfoType, WebsiteType } from "@/configs/type";
 import { Globe } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 
@@ -35,7 +36,7 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
       : hourlyData;
 
   return (
-    <div>
+    <Link href={`/dashboard/website/${websiteinfo?.website?.websiteId}`}>
       <Card>
         <CardHeader>
           <CardTitle>
@@ -76,7 +77,7 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
           </h2>
         </CardContent>
       </Card>
-    </div>
+    </Link>
   );
 };
 

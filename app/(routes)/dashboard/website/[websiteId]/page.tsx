@@ -1,0 +1,54 @@
+"use client";
+import { WebsiteInfoType, WebsiteType } from "@/configs/type";
+import axios from "axios";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { FormInput } from "./_components/form-input";
+import { PageViewAnalytics } from "./_components/page-view-analytics";
+import { format } from "date-fns";
+
+function WebsiteDetail() {
+  const { websiteId } = useParams();
+  const [websiteList, setWebsiteList] = useState<WebsiteType[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfoType | null>(null);
+  const [formData, setFormData] = useState<any>({
+    analysicType: "hourly",
+    fromDate: new Date(),
+    toDate: new Date(),
+  });
+
+  useEffect(() => {
+    getWebsiteList();
+    getWebsiteAnalyticDetail();
+  }, []);
+
+  const getWebsiteList = async () => {
+    const response = await axios.get('/api/website?websiteOnly=true')
+    console.log(response.data);
+    setWebsiteList(response.data);    
+  }
+
+  useEffect(() => {
+    getWebsiteAnalyticDetail();
+  }, [formData?.fromDate, formData?.toDate]);
+
+  const getWebsiteAnalyticDetail = async () => {
+    setLoading(true);
+    const fromDate = format(formData?.fromDate, "yyyy-MM-dd");
+    const toDate = formData?.to ? format(formData?.toDate, "yyyy-MM-dd") : fromDate;
+    const websiteResult = await axios.get(`/api/website?websiteId=${websiteId}&from=${fromDate}&to=${toDate}`);
+    console.log(websiteResult.data);
+    setWebsiteInfo(websiteResult.data[0]);
+    setLoading(false);
+  }
+
+  return (
+    <div className="mt-10">
+      <FormInput websiteList={websiteList} setFormData={setFormData} setReloadData={getWebsiteAnalyticDetail} />
+      <PageViewAnalytics websiteInfo={websiteInfo} loading={loading} analyticsType={formData?.analysicType} />
+    </div>
+  )
+}
+
+export default WebsiteDetail;
