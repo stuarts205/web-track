@@ -4,6 +4,25 @@ import { eq, and, gt } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { UAParser } from "ua-parser-js";
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS(req: Request) {
+  const origin = req.headers.get("origin") || "*";
+
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -54,7 +73,10 @@ export async function POST(req: NextRequest) {
         },
       });
 
-    return NextResponse.json({ status: "ok" });
+    return NextResponse.json(
+        { message: "Data received successfully" },
+        { headers: CORS_HEADERS },
+      );
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(

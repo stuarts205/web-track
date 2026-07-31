@@ -1,14 +1,13 @@
-
-'use client'
+"use client";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import React from "react";
+import React, { Suspense } from "react";
 import WebsiteForm from "./_components/website-form";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import GeneratedScript from "./_components/generated-script";
 
-const AddWebsite = () => {
+const AddWebsiteContent = () => {
   const searchParams = useSearchParams();
   const step = searchParams.get("step");
 
@@ -43,6 +42,14 @@ const AddWebsite = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const AddWebsite = () => {
+  return (
+    <Suspense fallback={<div className="mt-10 text-center">Loading...</div>}>
+      <AddWebsiteContent />
+    </Suspense>
   );
 };
 
