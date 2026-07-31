@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import Link from "next/link";
 
 interface FormInputProps {
   websiteList: WebsiteType[];
@@ -143,9 +144,11 @@ export const FormInput = ({ websiteList, setFormData, setReloadData }: FormInput
           <RefreshCcw />
         </Button>
       </div>
-      <Button variant="outline">
-        <Settings />
-      </Button>
+      <Link href={`/dashboard/website/${websiteId}/settings`}>
+        <Button variant="outline" className="cursor-pointer">
+          <Settings />
+        </Button>
+      </Link>
     </div>
   );
 };
