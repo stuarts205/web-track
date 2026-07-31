@@ -87,4 +87,22 @@
     //localStorage.clear();
   };
   window.addEventListener("beforeunload", handleExit);
+
+const sendLivePing = () => {
+  fetch('http://localhost:3000/api/live-user', {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      websiteId,
+      visitorId,
+      last_seen: Date.now(),
+      url:window.location.href
+    }),
+  })
+}
+
+setInterval(sendLivePing, 10000); 
+
 })();

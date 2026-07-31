@@ -45,4 +45,20 @@ export type RefParamsType = {
     uv: number
 }
 
+export type LiveUserType = {
+    id: number,
+    websiteId: string,
+    visitorId: string,
+    last_seen: number,
+    city: string,
+    country: string,
+    countryCode: string,
+    region: string,
+    lat: string,
+    lng: string,
+    device: string,
+    os: string,
+    browser: string,
+}
+
 export const IMAGE_URL_FOR_DOMAINS = "https://icons.duckduckgo.com/ip3/<domain>.com.ico";

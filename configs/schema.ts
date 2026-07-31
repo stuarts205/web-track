@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { bigint, boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -40,4 +40,20 @@ export const pageViewTable = pgTable("page_views", {
     region: varchar(),
     refParams: varchar(),
     exitUrl: varchar(),
+})
+
+export const liveUserTable = pgTable("live_user", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    websiteId: varchar(),
+    visitorId: varchar().unique(),
+    last_seen: bigint({ mode: "number" }).notNull(),
+    city: varchar(),
+    country: varchar(),
+    countryCode: varchar(),
+    region: varchar(),
+    lat: varchar(),
+    lng: varchar(),
+    device: varchar(),
+    os: varchar(),
+    browser: varchar(),
 })
