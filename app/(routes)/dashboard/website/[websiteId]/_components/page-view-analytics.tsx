@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { WebsiteInfoType } from "@/configs/type";
+import { LiveUserType, WebsiteInfoType } from "@/configs/type";
 import React from "react";
 import { LabelCountItem } from "./label-count-item";
 import { Separator } from "@/components/ui/separator";
@@ -16,6 +16,7 @@ interface PageViewAnalyticsProps {
   websiteInfo: WebsiteInfoType | undefined | null;
   loading: boolean;
   analyticsType: string;
+  liveUser: number | undefined;
 }
 
 const chartConfig = {
@@ -29,6 +30,7 @@ export const PageViewAnalytics = ({
   websiteInfo,
   loading,
   analyticsType,
+  liveUser,
 }: PageViewAnalyticsProps) => {
   const webAnalytics = websiteInfo?.analytics;
   return (
@@ -59,7 +61,7 @@ export const PageViewAnalytics = ({
             }
           />
           <Separator orientation="vertical" className="h-12" />
-          <LabelCountItem label="Live Users" value={5} />
+          <LabelCountItem label="Live Users" value={liveUser ?? 0} />
         </CardContent>
         <CardContent className="p-5 mt-5">
           <ChartContainer config={chartConfig} className='h-96 w-full'>
