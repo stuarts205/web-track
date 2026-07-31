@@ -4,6 +4,8 @@ import { db } from "@/configs/db";
 import { usersTable } from "@/configs/schema";
 import { currentUser } from "@clerk/nextjs/server";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
     try {
         const user = await currentUser();
