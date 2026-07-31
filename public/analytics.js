@@ -36,8 +36,6 @@
   const utm_campaign = urlParams.get("utm_campaign") || "";
   const refParams = window.location.href.split('?')[1] || "";
 
-  console.log("Website ID:", websiteId, "Domain:", domain);
-
   const data = {
     type: "entry",
     websiteId,

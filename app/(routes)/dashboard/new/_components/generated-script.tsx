@@ -20,7 +20,7 @@ function GeneratedScript() {
     defer
     data-website-id="${websiteId}"
     data-domain="${domain}"
-    src="http://localhost:3000/analytics.js">
+    src="https://web-track-seven.vercel.app/analytics.js">
     </script>`;
 
   const copyScript = async () => {
