@@ -25,11 +25,21 @@ function WebsiteDetail() {
     getWebsiteAnalyticDetail();
   }, []);
 
+  useEffect(() => {
+    getLiveUser();
+
+    const intervalId = setInterval(() => {
+      getLiveUser();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [websiteId]);
+
   const getWebsiteList = async () => {
-    const response = await axios.get('/api/website?websiteOnly=true')
+    const response = await axios.get("/api/website?websiteOnly=true");
     console.log(response.data);
-    setWebsiteList(response.data);    
-  }
+    setWebsiteList(response.data);
+  };
 
   useEffect(() => {
     getWebsiteAnalyticDetail();
@@ -38,28 +48,44 @@ function WebsiteDetail() {
   const getWebsiteAnalyticDetail = async () => {
     setLoading(true);
     const fromDate = format(formData?.fromDate, "yyyy-MM-dd");
-    const toDate = formData?.to ? format(formData?.toDate, "yyyy-MM-dd") : fromDate;
-    const websiteResult = await axios.get(`/api/website?websiteId=${websiteId}&from=${fromDate}&to=${toDate}`);
+    const toDate = formData?.to
+      ? format(formData?.toDate, "yyyy-MM-dd")
+      : fromDate;
+    const websiteResult = await axios.get(
+      `/api/website?websiteId=${websiteId}&from=${fromDate}&to=${toDate}`,
+    );
     console.log(websiteResult.data);
     setWebsiteInfo(websiteResult.data[0]);
     setLoading(false);
-    getLiveUser();    
-  }
+    getLiveUser();
+  };
 
   const getLiveUser = async () => {
     const result = await axios.get(`/api/live-user?websiteId=${websiteId}`);
-    setLiveUser(result.data);
-  }
+    setLiveUser(result?.data);
+  };
 
   return (
     <div className="mt-10">
-      <FormInput websiteList={websiteList} setFormData={setFormData} setReloadData={getWebsiteAnalyticDetail} />
-      <PageViewAnalytics websiteInfo={websiteInfo} loading={loading} analyticsType={formData?.analysicType} liveUser={liveUser?.length} />
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-5 mt-5'>
-        <SourceWidget websiteAnalytics={websiteInfo?.analytics} loading={loading} />
+      <FormInput
+        websiteList={websiteList}
+        setFormData={setFormData}
+        setReloadData={getWebsiteAnalyticDetail}
+      />
+      <PageViewAnalytics
+        websiteInfo={websiteInfo}
+        loading={loading}
+        analyticsType={formData?.analysicType}
+        liveUser={liveUser?.length}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+        <SourceWidget
+          websiteAnalytics={websiteInfo?.analytics}
+          loading={loading}
+        />
       </div>
     </div>
-  )
+  );
 }
 
 export default WebsiteDetail;

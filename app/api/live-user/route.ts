@@ -26,7 +26,14 @@ export async function OPTIONS(req: Request) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { visitorId, websiteId, last_seen, url } = body;
+    const { visitorId, websiteId, last_seen } = body;
+
+    if (!visitorId || !websiteId || !last_seen) {
+      return NextResponse.json(
+        { status: "error", message: "Missing required fields" },
+        { status: 400, headers: CORS_HEADERS },
+      );
+    }
 
     const parser = new UAParser(req.headers.get("user-agent") || "");
     const deviceInfo = parser.getDevice()?.model || "";
@@ -36,17 +43,26 @@ export async function POST(req: NextRequest) {
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0] ||
       req.headers.get("x-real-ip") ||
-      "71.71.22.54"; 
+      "71.71.22.54";
 
-    const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
-    const geoInfo = await geoRes.json();
+    let geoInfo: any = {};
+    try {
+      const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+      geoInfo = await geoRes.json();
+    } catch {
+      // Geolocation is optional for live pings.
+    }
+
+    const normalizedLastSeen = Number(last_seen);
 
     await db
       .insert(liveUserTable)
       .values({
         visitorId,
         websiteId,
-        last_seen,
+        last_seen: Number.isFinite(normalizedLastSeen)
+          ? normalizedLastSeen
+          : Date.now(),
         city: geoInfo.city || "",
         region: geoInfo.regionName || "",
         country: geoInfo.country || "",
@@ -60,7 +76,9 @@ export async function POST(req: NextRequest) {
       .onConflictDoUpdate({
         target: liveUserTable.visitorId,
         set: {
-          last_seen,
+          last_seen: Number.isFinite(normalizedLastSeen)
+            ? normalizedLastSeen
+            : Date.now(),
           city: geoInfo.city || "",
           region: geoInfo.regionName || "",
           country: geoInfo.country || "",
@@ -74,14 +92,14 @@ export async function POST(req: NextRequest) {
       });
 
     return NextResponse.json(
-        { message: "Data received successfully" },
-        { headers: CORS_HEADERS },
-      );
+      { message: "Data received successfully" },
+      { headers: CORS_HEADERS },
+    );
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
       { status: "error", message: err.message },
-      { status: 500 }
+      { status: 500, headers: CORS_HEADERS },
     );
   }
 }
@@ -91,14 +109,14 @@ export async function GET(req: NextRequest) {
   const now = Date.now();
 
   const activeUsers = await db
-      .select()
-      .from(liveUserTable)
-      .where(
-        and(
-          gt(liveUserTable.last_seen, now - 30000),
-          eq(liveUserTable.websiteId, websiteId as string),
-        ),
-      );
+    .select()
+    .from(liveUserTable)
+    .where(
+      and(
+        gt(liveUserTable.last_seen, now - 30000),
+        eq(liveUserTable.websiteId, websiteId as string),
+      ),
+    );
 
   return NextResponse.json(activeUsers);
 }
