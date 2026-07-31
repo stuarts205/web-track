@@ -376,3 +376,19 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(result);
 }
+
+export async function DELETE(req: NextRequest) {
+  console.log(req)
+  const { websiteId } = await req.json();
+  const user = await currentUser();
+
+  const result = await db
+    .delete(websiteTable)
+    .where(
+      and(
+        eq(websiteTable.websiteId, websiteId),
+        eq(websiteTable.userEmail, user?.primaryEmailAddress?.emailAddress as string),
+      ),
+    );
+  return NextResponse.json({ message: "Record Deleted"})
+}
