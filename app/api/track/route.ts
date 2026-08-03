@@ -108,6 +108,36 @@ export async function POST(req: NextRequest) {
         region: geoInfo.region,
       })
       .returning();
+  } else if (body?.type === "image_click") {
+    const imageDescriptor =
+      body.imageLabel ||
+      body.imageAlt ||
+      body.imageId ||
+      body.imageClass ||
+      "Untitled Image";
+
+    result = await db
+      .insert(pageViewTable)
+      .values({
+        visitorId: body.visitorId,
+        websiteId: body.websiteId,
+        domain: body.domain,
+        type: body.type,
+        entryTime: body.entryTime,
+        url: body.url,
+        exitUrl: body.imageUrl,
+        referrer: body.referrer,
+        refParams: imageDescriptor,
+        device: deviceInfo,
+        os: osInfo,
+        browser: browserInfo,
+        ipAddress: ip || "",
+        city: geoInfo.city,
+        country: geoInfo.country,
+        countryCode: geoInfo.countryCode,
+        region: geoInfo.region,
+      })
+      .returning();
   } else {
     return NextResponse.json(
       { message: "Unsupported event type", type: body?.type },

@@ -15,11 +15,11 @@ export const ClickedLinksWidget = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Clicked Links</CardTitle>
+          <CardTitle>Clicked Links and Images</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Loading link clicks...
+            Loading click events...
           </p>
         </CardContent>
       </Card>
@@ -30,11 +30,11 @@ export const ClickedLinksWidget = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Clicked Links</CardTitle>
+          <CardTitle>Clicked Links and Images</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No link clicks tracked yet.
+            No click events tracked yet.
           </p>
         </CardContent>
       </Card>
@@ -44,7 +44,7 @@ export const ClickedLinksWidget = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Clicked Links</CardTitle>
+        <CardTitle>Clicked Links and Images</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {clickedLinks.map((link, index) => {
@@ -58,6 +58,9 @@ export const ClickedLinksWidget = ({
               className="flex items-center justify-between gap-4 rounded-md border p-3"
             >
               <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {link.eventType === "image" ? "Image" : "Link"}
+                </p>
                 {isHttp ? (
                   <a
                     href={link.url}

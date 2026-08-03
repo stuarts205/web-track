@@ -28,6 +28,7 @@ export type ClickedLinkType = {
   url: string;
   label: string;
   clicks: number;
+  eventType: "link" | "image";
 };
 
 export type HourlyVisitorsType = {

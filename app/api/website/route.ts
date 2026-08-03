@@ -2,7 +2,7 @@ import { db } from "@/configs/db";
 import { pageViewTable, websiteTable } from "@/configs/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
-import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, sql, gte, lte, or } from "drizzle-orm";
 import { toZonedTime } from "date-fns-tz";
 import { formatDateInTZ, getSafeTimeZone } from "@/lib/utils";
 
@@ -195,6 +195,7 @@ export async function GET(req: NextRequest) {
 
     const clickEvents = await db
       .select({
+        type: pageViewTable.type,
         clickedUrl: pageViewTable.exitUrl,
         linkText: pageViewTable.refParams,
       })
@@ -202,7 +203,10 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           eq(pageViewTable.websiteId, site.websiteId),
-          eq(pageViewTable.type, "click"),
+          or(
+            eq(pageViewTable.type, "click"),
+            eq(pageViewTable.type, "image_click"),
+          ),
           ...(fromUnix && toUnix
             ? [
                 gte(sql`${pageViewTable.entryTime}::bigint`, fromUnix),
@@ -374,27 +378,42 @@ export async function GET(req: NextRequest) {
       clickEvents.reduce(
         (acc, item) => {
           const url = item.clickedUrl || "Unknown";
-          if (!acc[url]) {
-            acc[url] = {
+          const eventType = item.type === "image_click" ? "image" : "link";
+          const key = `${eventType}:${url}`;
+
+          if (!acc[key]) {
+            acc[key] = {
               url,
-              label: item.linkText || "Untitled Link",
+              label:
+                item.linkText ||
+                (eventType === "image" ? "Untitled Image" : "Untitled Link"),
               clicks: 0,
+              eventType,
             };
           }
 
-          acc[url].clicks += 1;
+          acc[key].clicks += 1;
 
           if (
-            acc[url].label === "Untitled Link" &&
+            (acc[key].label === "Untitled Link" ||
+              acc[key].label === "Untitled Image") &&
             item.linkText &&
             item.linkText.trim().length > 0
           ) {
-            acc[url].label = item.linkText;
+            acc[key].label = item.linkText;
           }
 
           return acc;
         },
-        {} as Record<string, { url: string; label: string; clicks: number }>,
+        {} as Record<
+          string,
+          {
+            url: string;
+            label: string;
+            clicks: number;
+            eventType: "link" | "image";
+          }
+        >,
       ),
     )
       .sort((a, b) => b.clicks - a.clicks)

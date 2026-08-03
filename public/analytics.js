@@ -67,6 +67,42 @@
 
   const handleLinkClick = (event) => {
     const anchor = event.target.closest("a[href]");
+    const image = event.target.closest("img");
+
+    if (image) {
+      const imageLabel =
+        (image.alt || "").trim() ||
+        image.id ||
+        image.getAttribute("aria-label") ||
+        "Untitled Image";
+
+      const imagePayload = {
+        type: "image_click",
+        websiteId,
+        domain,
+        visitorId,
+        entryTime: Math.floor(Date.now() / 1000),
+        url: window.location.href,
+        imageUrl: image.currentSrc || image.src || "",
+        imageAlt: (image.alt || "").trim().slice(0, 255),
+        imageId: image.id || "",
+        imageClass: (image.className || "").toString().trim().slice(0, 255),
+        imageLabel: imageLabel.toString().trim().slice(0, 255),
+        referrer,
+      };
+
+      fetch("https://web-track-seven.vercel.app/api/track", {
+        method: "POST",
+        keepalive: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(imagePayload),
+      }).catch(() => {
+        // Do not surface image click tracking errors to host websites.
+      });
+    }
+
     if (!anchor) return;
 
     const href = anchor.getAttribute("href") || "";
