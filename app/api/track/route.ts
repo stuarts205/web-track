@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
         refParams: body.refParams,
       })
       .returning();
-  } else {
-    await db
+  } else if (body?.type === "exit") {
+    result = await db
       .update(pageViewTable)
       .set({
         exitTime: body.exitTime,
@@ -85,6 +85,34 @@ export async function POST(req: NextRequest) {
       })
       .where(eq(pageViewTable.visitorId, body.visitorId))
       .returning();
+  } else if (body?.type === "click") {
+    result = await db
+      .insert(pageViewTable)
+      .values({
+        visitorId: body.visitorId,
+        websiteId: body.websiteId,
+        domain: body.domain,
+        type: body.type,
+        entryTime: body.entryTime,
+        url: body.url,
+        exitUrl: body.clickedUrl,
+        referrer: body.referrer,
+        refParams: body.linkText,
+        device: deviceInfo,
+        os: osInfo,
+        browser: browserInfo,
+        ipAddress: ip || "",
+        city: geoInfo.city,
+        country: geoInfo.country,
+        countryCode: geoInfo.countryCode,
+        region: geoInfo.region,
+      })
+      .returning();
+  } else {
+    return NextResponse.json(
+      { message: "Unsupported event type", type: body?.type },
+      { status: 400, headers: CORS_HEADERS },
+    );
   }
 
   return NextResponse.json(
