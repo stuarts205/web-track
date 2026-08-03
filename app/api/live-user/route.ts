@@ -132,6 +132,22 @@ export async function GET(req: NextRequest) {
         ),
       );
 
+    const clickedImages = await db
+      .select({
+        imageUrl: pageViewTable.exitUrl,
+        imageLabel: pageViewTable.refParams,
+        clickedAt: pageViewTable.entryTime,
+      })
+      .from(pageViewTable)
+      .where(
+        and(
+          eq(pageViewTable.websiteId, websiteId),
+          eq(pageViewTable.visitorId, visitorId),
+          eq(pageViewTable.type, "image_click"),
+        ),
+      )
+      .orderBy(sql`${pageViewTable.entryTime}::bigint DESC`);
+
     const liveUser = visitor[0];
     if (!liveUser) {
       return NextResponse.json(null);
@@ -144,6 +160,7 @@ export async function GET(req: NextRequest) {
       ...liveUser,
       totalActiveTime,
       isLive,
+      clickedImages,
     });
   }
 

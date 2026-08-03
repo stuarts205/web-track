@@ -5,9 +5,16 @@ import { LiveUserType, VisitorPageviewType } from "@/configs/type";
 import axios from "axios";
 import React, { useState } from "react";
 
+type ImageClickType = {
+  imageUrl: string | null;
+  imageLabel: string | null;
+  clickedAt: string | null;
+};
+
 type VisitorDetailType = LiveUserType & {
   totalActiveTime: number;
   isLive: boolean;
+  clickedImages: ImageClickType[];
 };
 
 interface VisitorPageviewsWidgetProps {
@@ -203,15 +210,69 @@ export const VisitorPageviewsWidget = ({
                 Loading details...
               </p>
             ) : visitorDetail ? (
-              <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
-                {detailItems.map((item) => (
-                  <div key={item.label} className="rounded-sm bg-muted/40 p-2">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                      {item.label}
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
+                  {detailItems.map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-sm bg-muted/40 p-2"
+                    >
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {item.label}
+                      </p>
+                      <div className="break-all font-medium">{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-sm bg-muted/40 p-2">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                    Clicked images
+                  </p>
+                  {visitorDetail.clickedImages?.length ? (
+                    <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                      {visitorDetail.clickedImages.map((image, index) => {
+                        const clickedAtText = image.clickedAt
+                          ? new Date(
+                              Number(image.clickedAt) * 1000,
+                            ).toLocaleString()
+                          : "Unknown time";
+
+                        return (
+                          <a
+                            key={`${image.imageUrl || "image"}-${index}`}
+                            href={image.imageUrl || "#"}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block overflow-hidden rounded-sm border bg-background p-2"
+                            title={image.imageLabel || "Clicked image"}
+                          >
+                            {image.imageUrl ? (
+                              <img
+                                src={image.imageUrl}
+                                alt={image.imageLabel || "Clicked image"}
+                                className="h-24 w-full rounded-sm object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-24 w-full items-center justify-center rounded-sm bg-muted text-xs text-muted-foreground">
+                                No image URL
+                              </div>
+                            )}
+                            <p className="mt-2 truncate text-xs font-medium">
+                              {image.imageLabel || "Untitled Image"}
+                            </p>
+                            <p className="truncate text-[11px] text-muted-foreground">
+                              {clickedAtText}
+                            </p>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No images clicked for this visitor.
                     </p>
-                    <div className="break-all font-medium">{item.value}</div>
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">

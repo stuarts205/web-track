@@ -86,10 +86,10 @@ function WebsiteDetail() {
           websiteAnalytics={websiteInfo?.analytics}
           loading={loading}
         />
-        <ClickedLinksWidget
+        {/* <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
           loading={loading}
-        />
+        /> */}
         <VisitorPageviewsWidget
           visitorPageviews={websiteInfo?.analytics?.visitorPageviews}
           loading={loading}
