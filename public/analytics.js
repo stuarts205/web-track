@@ -65,6 +65,30 @@
     body: JSON.stringify(data),
   });
 
+  const normalizeImageUrl = (rawUrl) => {
+    if (!rawUrl) return "";
+
+    try {
+      const parsed = new URL(rawUrl, window.location.href);
+
+      // Handle Next.js image optimizer URLs: /_next/image?url=<encoded-origin-url>
+      if (parsed.pathname === "/_next/image") {
+        const original = parsed.searchParams.get("url");
+        if (original) {
+          try {
+            return decodeURIComponent(original);
+          } catch {
+            return original;
+          }
+        }
+      }
+
+      return parsed.href;
+    } catch {
+      return rawUrl;
+    }
+  };
+
   const handleLinkClick = (event) => {
     const anchor = event.target.closest("a[href]");
     const image = event.target.closest("img");
@@ -83,7 +107,7 @@
         visitorId,
         entryTime: Math.floor(Date.now() / 1000),
         url: window.location.href,
-        imageUrl: image.currentSrc || image.src || "",
+        imageUrl: normalizeImageUrl(image.currentSrc || image.src || ""),
         imageAlt: (image.alt || "").trim().slice(0, 255),
         imageId: image.id || "",
         imageClass: (image.className || "").toString().trim().slice(0, 255),

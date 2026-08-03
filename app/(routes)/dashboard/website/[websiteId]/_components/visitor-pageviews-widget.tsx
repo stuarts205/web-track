@@ -238,14 +238,7 @@ export const VisitorPageviewsWidget = ({
                           : "Unknown time";
 
                         return (
-                          <a
-                            key={`${image.imageUrl || "image"}-${index}`}
-                            href={image.imageUrl || "#"}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="block overflow-hidden rounded-sm border bg-background p-2"
-                            title={image.imageLabel || "Clicked image"}
-                          >
+                          <div>
                             {image.imageUrl ? (
                               <img
                                 src={image.imageUrl}
@@ -263,7 +256,7 @@ export const VisitorPageviewsWidget = ({
                             <p className="truncate text-[11px] text-muted-foreground">
                               {clickedAtText}
                             </p>
-                          </a>
+                          </div>
                         );
                       })}
                     </div>

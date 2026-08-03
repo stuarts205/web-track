@@ -26,6 +26,31 @@ export async function OPTIONS(req: Request) {
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
+  const normalizeImageUrl = (rawUrl: string, pageUrl?: string) => {
+    if (!rawUrl) return "";
+
+    try {
+      const base = pageUrl || "https://example.com";
+      const parsed = new URL(rawUrl, base);
+
+      // Normalize Next.js optimizer URLs back to the original image URL.
+      if (parsed.pathname === "/_next/image") {
+        const original = parsed.searchParams.get("url");
+        if (original) {
+          try {
+            return decodeURIComponent(original);
+          } catch {
+            return original;
+          }
+        }
+      }
+
+      return parsed.href;
+    } catch {
+      return rawUrl;
+    }
+  };
+
   const parser = new UAParser(req.headers.get("user-agent") || "");
   const deviceInfo = parser.getDevice()?.model;
   const osInfo = parser.getOS()?.name;
@@ -115,6 +140,7 @@ export async function POST(req: NextRequest) {
       body.imageId ||
       body.imageClass ||
       "Untitled Image";
+    const normalizedImageUrl = normalizeImageUrl(body.imageUrl, body.url);
 
     result = await db
       .insert(pageViewTable)
@@ -125,7 +151,7 @@ export async function POST(req: NextRequest) {
         type: body.type,
         entryTime: body.entryTime,
         url: body.url,
-        exitUrl: body.imageUrl,
+        exitUrl: normalizedImageUrl,
         referrer: body.referrer,
         refParams: imageDescriptor,
         device: deviceInfo,

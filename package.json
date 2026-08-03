@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "backfill:image-urls": "tsx scripts/backfill-image-click-urls.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.1",
