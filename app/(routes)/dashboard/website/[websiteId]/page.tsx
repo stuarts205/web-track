@@ -67,7 +67,7 @@ function WebsiteDetail() {
   };
 
   return (
-    <div className="mt-10">
+    <div className="mt-10 mb-10">
       <FormInput
         websiteList={websiteList}
         setFormData={setFormData}
