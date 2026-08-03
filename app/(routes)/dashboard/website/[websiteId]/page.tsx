@@ -8,9 +8,11 @@ import { PageViewAnalytics } from "./_components/page-view-analytics";
 import { format } from "date-fns";
 import { SourceWidget } from "./_components/source-widget";
 import { ClickedLinksWidget } from "./_components/clicked-links-widget";
+import { VisitorPageviewsWidget } from "./_components/visitor-pageviews-widget";
 
 function WebsiteDetail() {
   const { websiteId } = useParams();
+  const activeWebsiteId = Array.isArray(websiteId) ? websiteId[0] : websiteId;
   const [websiteList, setWebsiteList] = useState<WebsiteType[]>([]);
   const [loading, setLoading] = useState(false);
   const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfoType | null>(null);
@@ -53,7 +55,7 @@ function WebsiteDetail() {
       ? format(formData?.toDate, "yyyy-MM-dd")
       : fromDate;
     const websiteResult = await axios.get(
-      `/api/website?websiteId=${websiteId}&from=${fromDate}&to=${toDate}`,
+      `/api/website?websiteId=${activeWebsiteId}&from=${fromDate}&to=${toDate}`,
     );
     console.log(websiteResult.data);
     setWebsiteInfo(websiteResult.data[0]);
@@ -87,6 +89,11 @@ function WebsiteDetail() {
         <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
           loading={loading}
+        />
+        <VisitorPageviewsWidget
+          visitorPageviews={websiteInfo?.analytics?.visitorPageviews}
+          loading={loading}
+          websiteId={activeWebsiteId as string}
         />
       </div>
     </div>

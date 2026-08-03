@@ -55,6 +55,7 @@ export async function GET(req: NextRequest) {
   const websiteId = req.nextUrl.searchParams.get("websiteId");
   const from = req.nextUrl.searchParams.get("from");
   const to = req.nextUrl.searchParams.get("to");
+  const visitorId = req.nextUrl.searchParams.get("visitorId");
   const websiteOnly = req.nextUrl.searchParams.get("websiteOnly");
 
   const fromUnix = from
@@ -184,6 +185,7 @@ export async function GET(req: NextRequest) {
         and(
           eq(pageViewTable.websiteId, site.websiteId),
           eq(pageViewTable.type, "entry"),
+          ...(visitorId ? [eq(pageViewTable.visitorId, visitorId)] : []),
           ...(fromUnix && toUnix
             ? [
                 gte(sql`${pageViewTable.entryTime}::bigint`, fromUnix),
@@ -203,6 +205,7 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           eq(pageViewTable.websiteId, site.websiteId),
+          ...(visitorId ? [eq(pageViewTable.visitorId, visitorId)] : []),
           or(
             eq(pageViewTable.type, "click"),
             eq(pageViewTable.type, "image_click"),
@@ -307,6 +310,19 @@ export async function GET(req: NextRequest) {
     const totalSessions = views.length;
     const avgActiveTime =
       totalVisitors > 0 ? Math.round(totalActiveTime / totalVisitors) : 0;
+
+    const visitorPageviews = Object.entries(
+      views.reduce(
+        (acc, v) => {
+          if (!v.visitorId) return acc;
+          acc[v.visitorId] = (acc[v.visitorId] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+    )
+      .map(([visitorId, pageviews]) => ({ visitorId, pageviews }))
+      .sort((a, b) => b.pageviews - a.pageviews);
 
     const hourlyMap: Record<string, Set<string>> = {};
 
@@ -441,6 +457,7 @@ export async function GET(req: NextRequest) {
         utmSources: formatSimple(toCountMap(utmSourceVisitors)),
         urls: formatSimple(toCountMap(urlVisitors)),
         clickedLinks,
+        visitorPageviews,
       },
     });
   }

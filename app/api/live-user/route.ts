@@ -106,7 +106,22 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const websiteId = req.nextUrl.searchParams.get("websiteId");
+  const visitorId = req.nextUrl.searchParams.get("visitorId");
   const now = Date.now();
+
+  if (websiteId && visitorId) {
+    const visitor = await db
+      .select()
+      .from(liveUserTable)
+      .where(
+        and(
+          eq(liveUserTable.websiteId, websiteId),
+          eq(liveUserTable.visitorId, visitorId),
+        ),
+      );
+
+    return NextResponse.json(visitor[0] ?? null);
+  }
 
   const activeUsers = await db
     .select()

@@ -61,21 +61,9 @@ export const ClickedLinksWidget = ({
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {link.eventType === "image" ? "Image" : "Link"}
                 </p>
-                {isHttp ? (
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block truncate font-medium hover:underline"
-                    title={link.url}
-                  >
-                    {displayText}
-                  </a>
-                ) : (
-                  <p className="block truncate font-medium" title={link.url}>
-                    {displayText}
-                  </p>
-                )}
+                <p className="block truncate font-medium" title={link.url}>
+                  {displayText}
+                </p>
                 <p
                   className="truncate text-xs text-muted-foreground"
                   title={link.url}

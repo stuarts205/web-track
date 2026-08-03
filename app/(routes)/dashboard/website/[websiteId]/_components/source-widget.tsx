@@ -50,9 +50,7 @@ const barLabelWithImage = (props: any) => {
 
   return (
     <g transform={`translate(${x + 8}, ${y + height / 2 - 8})`}>
-      {/* SVG image */}
       <image href={imageUrl} width={16} height={16} />
-      {/* SVG text */}
       <text x={20} y={12} fontSize={12} fill="#ffffff">
         {value}
       </text>

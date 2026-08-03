@@ -22,6 +22,12 @@ export type AnalyticsType = {
   referrals: ReferralsType[];
   refParams: RefParamsType[];
   clickedLinks: ClickedLinkType[];
+  visitorPageviews: VisitorPageviewType[];
+};
+
+export type VisitorPageviewType = {
+  visitorId: string;
+  pageviews: number;
 };
 
 export type ClickedLinkType = {
