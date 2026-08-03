@@ -94,6 +94,7 @@ function WebsiteDetail() {
           visitorPageviews={websiteInfo?.analytics?.visitorPageviews}
           loading={loading}
           websiteId={activeWebsiteId as string}
+          liveUsers={liveUser}
         />
       </div>
     </div>

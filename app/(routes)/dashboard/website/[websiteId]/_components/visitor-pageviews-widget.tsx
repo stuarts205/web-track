@@ -14,12 +14,14 @@ interface VisitorPageviewsWidgetProps {
   visitorPageviews: VisitorPageviewType[] | undefined;
   loading: boolean;
   websiteId: string;
+  liveUsers?: LiveUserType[] | null;
 }
 
 export const VisitorPageviewsWidget = ({
   visitorPageviews,
   loading,
   websiteId,
+  liveUsers,
 }: VisitorPageviewsWidgetProps) => {
   const [expandedVisitorId, setExpandedVisitorId] = useState<string | null>(
     null,
@@ -47,6 +49,11 @@ export const VisitorPageviewsWidget = ({
   const countryFlagUrl = normalizedCountryCode
     ? `https://flagsapi.com/${normalizedCountryCode}/flat/64.png`
     : null;
+  const liveVisitorSet = new Set(
+    (liveUsers ?? [])
+      .map((user) => user.visitorId)
+      .filter((id): id is string => Boolean(id)),
+  );
 
   const handleVisitorClick = async (visitorId: string) => {
     if (expandedVisitorId === visitorId) {
@@ -150,23 +157,35 @@ export const VisitorPageviewsWidget = ({
       <CardContent className="space-y-3">
         {visitorPageviews.slice(0, 15).map((item) => {
           const isActive = expandedVisitorId === item.visitorId;
+          const isLive = liveVisitorSet.has(item.visitorId);
 
           return (
             <button
               type="button"
               key={item.visitorId}
               onClick={() => handleVisitorClick(item.visitorId)}
-              className={`flex items-center justify-between gap-4 w-full rounded-md border p-3 transition-colors hover:bg-muted/50 ${
+              className={`flex w-full items-center justify-between gap-4 rounded-md border p-3 transition-colors hover:bg-muted/50 ${
                 isActive ? "bg-muted" : ""
+              } ${
+                isLive
+                  ? "border-emerald-400/70 bg-emerald-50/60 dark:bg-emerald-950/30"
+                  : ""
               }`}
               title={`Show details for ${item.visitorId}`}
             >
-              <p
-                className="min-w-0 truncate text-sm font-medium"
-                title={item.visitorId}
-              >
-                {item.visitorId}
-              </p>
+              <div className="min-w-0">
+                <p
+                  className="truncate text-sm font-medium"
+                  title={item.visitorId}
+                >
+                  {item.visitorId}
+                </p>
+                {isLive ? (
+                  <span className="inline-block rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                    Live
+                  </span>
+                ) : null}
+              </div>
               <div className="shrink-0 text-right">
                 <p className="text-lg font-semibold">{item.pageviews}</p>
                 <p className="text-xs text-muted-foreground">pageviews</p>
