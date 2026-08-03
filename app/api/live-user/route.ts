@@ -1,6 +1,6 @@
 import { db } from "@/configs/db";
-import { liveUserTable } from "@/configs/schema";
-import { eq, and, gt } from "drizzle-orm";
+import { liveUserTable, pageViewTable } from "@/configs/schema";
+import { eq, and, gt, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { UAParser } from "ua-parser-js";
 
@@ -120,7 +120,31 @@ export async function GET(req: NextRequest) {
         ),
       );
 
-    return NextResponse.json(visitor[0] ?? null);
+    const activeTimeAgg = await db
+      .select({
+        totalActiveTime: sql<number>`COALESCE(SUM(${pageViewTable.totalActiveTime}), 0)`,
+      })
+      .from(pageViewTable)
+      .where(
+        and(
+          eq(pageViewTable.websiteId, websiteId),
+          eq(pageViewTable.visitorId, visitorId),
+        ),
+      );
+
+    const liveUser = visitor[0];
+    if (!liveUser) {
+      return NextResponse.json(null);
+    }
+
+    const isLive = Number(liveUser.last_seen) > now - 30000;
+    const totalActiveTime = Number(activeTimeAgg[0]?.totalActiveTime ?? 0);
+
+    return NextResponse.json({
+      ...liveUser,
+      totalActiveTime,
+      isLive,
+    });
   }
 
   const activeUsers = await db

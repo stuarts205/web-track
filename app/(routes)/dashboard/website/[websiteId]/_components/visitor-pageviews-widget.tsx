@@ -5,6 +5,11 @@ import { LiveUserType, VisitorPageviewType } from "@/configs/type";
 import axios from "axios";
 import React, { useState } from "react";
 
+type VisitorDetailType = LiveUserType & {
+  totalActiveTime: number;
+  isLive: boolean;
+};
+
 interface VisitorPageviewsWidgetProps {
   visitorPageviews: VisitorPageviewType[] | undefined;
   loading: boolean;
@@ -19,8 +24,22 @@ export const VisitorPageviewsWidget = ({
   const [expandedVisitorId, setExpandedVisitorId] = useState<string | null>(
     null,
   );
-  const [visitorDetail, setVisitorDetail] = useState<LiveUserType | null>(null);
+  const [visitorDetail, setVisitorDetail] = useState<VisitorDetailType | null>(
+    null,
+  );
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const formatDuration = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "0s";
+
+    const totalSeconds = Math.floor(seconds);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const remainingSeconds = totalSeconds % 60;
+
+    if (hours > 0) return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    if (minutes > 0) return `${minutes}m ${remainingSeconds}s`;
+    return `${remainingSeconds}s`;
+  };
 
   const normalizedCountryCode = visitorDetail?.countryCode
     ?.trim()
@@ -53,6 +72,14 @@ export const VisitorPageviewsWidget = ({
 
   const detailItems = visitorDetail
     ? [
+        {
+          label: "status",
+          value: visitorDetail.isLive ? "Live now" : "Offline",
+        },
+        {
+          label: "total_time_on_website",
+          value: formatDuration(Number(visitorDetail.totalActiveTime || 0)),
+        },
         {
           label: "last_seen",
           value: visitorDetail.last_seen
