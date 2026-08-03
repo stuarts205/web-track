@@ -238,7 +238,9 @@ export const VisitorPageviewsWidget = ({
                           : "Unknown time";
 
                         return (
-                          <div>
+                          <div
+                            className="block overflow-hidden rounded-sm border bg-background p-2"
+                          >
                             {image.imageUrl ? (
                               <img
                                 src={image.imageUrl}
