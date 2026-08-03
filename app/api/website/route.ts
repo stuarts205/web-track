@@ -183,6 +183,26 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           eq(pageViewTable.websiteId, site.websiteId),
+          eq(pageViewTable.type, "entry"),
+          ...(fromUnix && toUnix
+            ? [
+                gte(sql`${pageViewTable.entryTime}::bigint`, fromUnix),
+                lte(sql`${pageViewTable.entryTime}::bigint`, toUnix),
+              ]
+            : []),
+        ),
+      );
+
+    const clickEvents = await db
+      .select({
+        clickedUrl: pageViewTable.exitUrl,
+        linkText: pageViewTable.refParams,
+      })
+      .from(pageViewTable)
+      .where(
+        and(
+          eq(pageViewTable.websiteId, site.websiteId),
+          eq(pageViewTable.type, "click"),
           ...(fromUnix && toUnix
             ? [
                 gte(sql`${pageViewTable.entryTime}::bigint`, fromUnix),
@@ -198,6 +218,7 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           eq(pageViewTable.websiteId, site.websiteId),
+          eq(pageViewTable.type, "entry"),
           gte(sql`${pageViewTable.entryTime}::bigint`, last24HoursUnix),
         ),
       );
@@ -349,6 +370,36 @@ export async function GET(req: NextRequest) {
       count: set.size,
     }));
 
+    const clickedLinks = Object.values(
+      clickEvents.reduce(
+        (acc, item) => {
+          const url = item.clickedUrl || "Unknown";
+          if (!acc[url]) {
+            acc[url] = {
+              url,
+              label: item.linkText || "Untitled Link",
+              clicks: 0,
+            };
+          }
+
+          acc[url].clicks += 1;
+
+          if (
+            acc[url].label === "Untitled Link" &&
+            item.linkText &&
+            item.linkText.trim().length > 0
+          ) {
+            acc[url].label = item.linkText;
+          }
+
+          return acc;
+        },
+        {} as Record<string, { url: string; label: string; clicks: number }>,
+      ),
+    )
+      .sort((a, b) => b.clicks - a.clicks)
+      .slice(0, 15);
+
     result.push({
       website: site,
 
@@ -370,6 +421,7 @@ export async function GET(req: NextRequest) {
         refParams: formatSimple(toCountMap(refParamsVisitors)),
         utmSources: formatSimple(toCountMap(utmSourceVisitors)),
         urls: formatSimple(toCountMap(urlVisitors)),
+        clickedLinks,
       },
     });
   }
@@ -378,7 +430,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  console.log(req)
+  console.log(req);
   const { websiteId } = await req.json();
   const user = await currentUser();
 
@@ -387,8 +439,11 @@ export async function DELETE(req: NextRequest) {
     .where(
       and(
         eq(websiteTable.websiteId, websiteId),
-        eq(websiteTable.userEmail, user?.primaryEmailAddress?.emailAddress as string),
+        eq(
+          websiteTable.userEmail,
+          user?.primaryEmailAddress?.emailAddress as string,
+        ),
       ),
     );
-  return NextResponse.json({ message: "Record Deleted"})
+  return NextResponse.json({ message: "Record Deleted" });
 }

@@ -7,6 +7,7 @@ import { FormInput } from "./_components/form-input";
 import { PageViewAnalytics } from "./_components/page-view-analytics";
 import { format } from "date-fns";
 import { SourceWidget } from "./_components/source-widget";
+import { ClickedLinksWidget } from "./_components/clicked-links-widget";
 
 function WebsiteDetail() {
   const { websiteId } = useParams();
@@ -81,6 +82,10 @@ function WebsiteDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
         <SourceWidget
           websiteAnalytics={websiteInfo?.analytics}
+          loading={loading}
+        />
+        <ClickedLinksWidget
+          clickedLinks={websiteInfo?.analytics?.clickedLinks}
           loading={loading}
         />
       </div>

@@ -65,6 +65,39 @@
     body: JSON.stringify(data),
   });
 
+  const handleLinkClick = (event) => {
+    const anchor = event.target.closest("a[href]");
+    if (!anchor) return;
+
+    const href = anchor.getAttribute("href") || "";
+    if (!href || href.startsWith("#") || href.startsWith("javascript:")) return;
+
+    const clickPayload = {
+      type: "click",
+      websiteId,
+      domain,
+      visitorId,
+      entryTime: Math.floor(Date.now() / 1000),
+      url: window.location.href,
+      clickedUrl: anchor.href,
+      linkText: (anchor.textContent || "").trim().slice(0, 255),
+      referrer,
+    };
+
+    fetch("https://web-track-seven.vercel.app/api/track", {
+      method: "POST",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(clickPayload),
+    }).catch(() => {
+      // Do not surface click tracking errors to host websites.
+    });
+  };
+
+  document.addEventListener("click", handleLinkClick, true);
+
   let activeStartTime = Math.floor(Date.now() / 1000);
   let totalActiveTime = 0;
 
