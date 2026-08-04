@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
 
     const inferElementType = (eventType: string) => {
       if (eventType === "image_click") return "image";
+      if (eventType.startsWith("image_swipe")) return "image";
       if (eventType === "menu_click") return "menu";
       if (eventType === "button_click") return "button";
       return "link";

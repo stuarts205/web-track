@@ -10,6 +10,7 @@ import { SourceWidget } from "./_components/source-widget";
 import { ClickedLinksWidget } from "./_components/clicked-links-widget";
 import { VisitorPageviewsWidget } from "./_components/visitor-pageviews-widget";
 import { RecentClicksWidget } from "./_components/recent-clicks-widget";
+import { SwipeCountWidget } from "./_components/swipe-count-widget";
 
 function WebsiteDetail() {
   const { websiteId } = useParams();
@@ -83,6 +84,10 @@ function WebsiteDetail() {
       <div className="mt-4 grid grid-cols-1 gap-4 md:mt-5 md:grid-cols-2 md:gap-5 landscape:mt-3">
         <SourceWidget
           websiteAnalytics={websiteInfo?.analytics}
+          loading={loading}
+        />
+        <SwipeCountWidget
+          swipeStats={websiteInfo?.analytics?.swipeStats}
           loading={loading}
         />
         <RecentClicksWidget websiteId={activeWebsiteId as string} />

@@ -1,5 +1,4 @@
 (function () {
-
   function generateUniqueId() {
     return Date.now().toString(36) + Math.random().toString().substr(2, 9);
   }
@@ -110,6 +109,117 @@
     );
   };
 
+  const LIGHTBOX_SELECTORS = [
+    "[data-lightbox]",
+    "[data-fancybox]",
+    "[data-pswp]",
+    ".lightbox",
+    ".glightbox-container",
+    ".lg-outer",
+    ".pswp",
+    "[aria-modal='true']",
+    "[role='dialog']",
+  ];
+
+  const findLightboxContainer = (element) => {
+    if (!element || !element.closest) return null;
+
+    for (let i = 0; i < LIGHTBOX_SELECTORS.length; i += 1) {
+      const container = element.closest(LIGHTBOX_SELECTORS[i]);
+      if (container) return container;
+    }
+
+    return null;
+  };
+
+  const SWIPE_MIN_HORIZONTAL_DISTANCE = 40;
+  const SWIPE_HORIZONTAL_BIAS = 1.25;
+  let swipeStart = null;
+
+  const handleTouchStart = (event) => {
+    if (!event.touches || event.touches.length !== 1) return;
+
+    const target = event.target;
+    if (!target || !target.closest) return;
+
+    const image = target.closest("img");
+    if (!image) {
+      swipeStart = null;
+      return;
+    }
+
+    const container = findLightboxContainer(target);
+    if (!container) {
+      swipeStart = null;
+      return;
+    }
+
+    const touch = event.touches[0];
+    const imageLabel =
+      (image.alt || "").trim() ||
+      image.getAttribute("aria-label") ||
+      image.id ||
+      "Untitled Image";
+
+    swipeStart = {
+      x: touch.clientX,
+      y: touch.clientY,
+      imageUrl: normalizeImageUrl(image.currentSrc || image.src || ""),
+      imageAlt: (image.alt || "").trim().slice(0, 255),
+      imageLabel: imageLabel.toString().trim().slice(0, 255),
+      imageId: image.id || "",
+      imageClass: (image.className || "").toString().trim().slice(0, 255),
+    };
+  };
+
+  const handleTouchEnd = (event) => {
+    if (
+      !swipeStart ||
+      !event.changedTouches ||
+      event.changedTouches.length !== 1
+    )
+      return;
+
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - swipeStart.x;
+    const deltaY = touch.clientY - swipeStart.y;
+
+    if (
+      Math.abs(deltaX) < SWIPE_MIN_HORIZONTAL_DISTANCE ||
+      Math.abs(deltaX) < Math.abs(deltaY) * SWIPE_HORIZONTAL_BIAS
+    ) {
+      swipeStart = null;
+      return;
+    }
+
+    const direction = deltaX < 0 ? "next" : "previous";
+    const swipePayload = {
+      type: direction === "next" ? "image_swipe_next" : "image_swipe_previous",
+      eventType:
+        direction === "next" ? "image_swipe_next" : "image_swipe_previous",
+      elementType: "image",
+      websiteId,
+      domain,
+      visitorId,
+      entryTime: Math.floor(Date.now() / 1000),
+      url: window.location.href,
+      clickedUrl: swipeStart.imageUrl,
+      imageUrl: swipeStart.imageUrl,
+      imageAlt: swipeStart.imageAlt,
+      imageId: swipeStart.imageId,
+      imageClass: swipeStart.imageClass,
+      imageLabel: swipeStart.imageLabel,
+      elementId: swipeStart.imageId,
+      elementClass: swipeStart.imageClass,
+      label: swipeStart.imageLabel,
+      swipeDirection: direction,
+      referrer,
+    };
+
+    sendClickEvent(swipePayload);
+    swipeStart = null;
+  };
+
   const handleLinkClick = (event) => {
     const anchor = event.target.closest("a[href]");
     const image = event.target.closest("img");
@@ -205,6 +315,14 @@
   };
 
   document.addEventListener("click", handleLinkClick, true);
+  document.addEventListener("touchstart", handleTouchStart, {
+    passive: true,
+    capture: true,
+  });
+  document.addEventListener("touchend", handleTouchEnd, {
+    passive: true,
+    capture: true,
+  });
 
   let activeStartTime = Math.floor(Date.now() / 1000);
   let totalActiveTime = 0;

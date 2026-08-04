@@ -23,6 +23,13 @@ export type AnalyticsType = {
   refParams: RefParamsType[];
   clickedLinks: ClickedLinkType[];
   visitorPageviews: VisitorPageviewType[];
+  swipeStats: SwipeStatsType;
+};
+
+export type SwipeStatsType = {
+  total: number;
+  next: number;
+  previous: number;
 };
 
 export type VisitorPageviewType = {

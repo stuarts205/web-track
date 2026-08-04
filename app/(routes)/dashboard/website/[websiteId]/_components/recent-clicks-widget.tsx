@@ -114,6 +114,10 @@ export const RecentClicksWidget = ({ websiteId }: RecentClicksWidgetProps) => {
               <option value="all">All events</option>
               <option value="click">Links</option>
               <option value="image_click">Images</option>
+              <option value="image_swipe_next">Image swipe: next</option>
+              <option value="image_swipe_previous">
+                Image swipe: previous
+              </option>
               <option value="menu_click">Menus</option>
               <option value="button_click">Buttons</option>
             </select>

@@ -435,6 +435,21 @@ export async function GET(req: NextRequest) {
       .sort((a, b) => b.clicks - a.clicks)
       .slice(0, 15);
 
+    const swipeStats = clickEvents.reduce(
+      (acc, item) => {
+        if (item.type === "image_swipe_next") {
+          acc.next += 1;
+          acc.total += 1;
+        } else if (item.type === "image_swipe_previous") {
+          acc.previous += 1;
+          acc.total += 1;
+        }
+
+        return acc;
+      },
+      { total: 0, next: 0, previous: 0 },
+    );
+
     result.push({
       website: site,
 
@@ -458,6 +473,7 @@ export async function GET(req: NextRequest) {
         urls: formatSimple(toCountMap(urlVisitors)),
         clickedLinks,
         visitorPageviews,
+        swipeStats,
       },
     });
   }
