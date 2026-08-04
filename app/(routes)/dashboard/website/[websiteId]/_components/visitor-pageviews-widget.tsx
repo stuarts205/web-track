@@ -161,7 +161,7 @@ export const VisitorPageviewsWidget = ({
       <CardHeader>
         <CardTitle>Pageviews by Visitor</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 p-4 sm:p-6">
         {visitorPageviews.slice(0, 15).map((item) => {
           const isActive = expandedVisitorId === item.visitorId;
           const isLive = liveVisitorSet.has(item.visitorId);
@@ -171,7 +171,7 @@ export const VisitorPageviewsWidget = ({
               type="button"
               key={item.visitorId}
               onClick={() => handleVisitorClick(item.visitorId)}
-              className={`flex w-full items-center justify-between gap-4 rounded-md border p-3 transition-colors hover:bg-muted/50 ${
+              className={`flex w-full flex-col items-start justify-between gap-3 rounded-md border p-3 text-left transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:text-left ${
                 isActive ? "bg-muted" : ""
               } ${
                 isLive
@@ -180,7 +180,7 @@ export const VisitorPageviewsWidget = ({
               }`}
               title={`Show details for ${item.visitorId}`}
             >
-              <div className="min-w-0">
+              <div className="min-w-0 w-full sm:w-auto">
                 <p
                   className="truncate text-sm font-medium"
                   title={item.visitorId}
@@ -193,7 +193,7 @@ export const VisitorPageviewsWidget = ({
                   </span>
                 ) : null}
               </div>
-              <div className="shrink-0 text-right">
+              <div className="shrink-0 text-left sm:text-right">
                 <p className="text-lg font-semibold">{item.pageviews}</p>
                 <p className="text-xs text-muted-foreground">pageviews</p>
               </div>
@@ -229,7 +229,7 @@ export const VisitorPageviewsWidget = ({
                     Clicked images
                   </p>
                   {visitorDetail.clickedImages?.length ? (
-                    <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
                       {visitorDetail.clickedImages.map((image, index) => {
                         const clickedAtText = image.clickedAt
                           ? new Date(
@@ -239,6 +239,7 @@ export const VisitorPageviewsWidget = ({
 
                         return (
                           <div
+                            key={`${image.imageUrl || "no-url"}-${image.clickedAt || "no-time"}-${index}`}
                             className="block overflow-hidden rounded-sm border bg-background p-2"
                           >
                             {image.imageUrl ? (

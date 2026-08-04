@@ -36,13 +36,16 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
       : hourlyData;
 
   return (
-    <Link href={`/dashboard/website/${websiteinfo?.website?.websiteId}`}>
+    <Link
+      href={`/dashboard/website/${websiteinfo?.website?.websiteId}`}
+      className="block"
+    >
       <Card>
         <CardHeader>
           <CardTitle>
-            <div className="flex gap-2 items-center">
+            <div className="flex min-w-0 items-center gap-2">
               <Globe className="h-8 w-8 p-2 rounded-md bg-primary text-white" />
-              <h2 className="font-bold text-lg">
+              <h2 className="truncate text-base font-bold sm:text-lg">
                 {websiteinfo?.website?.domain
                   .replace("https://", "")
                   .replace("http://", "")}

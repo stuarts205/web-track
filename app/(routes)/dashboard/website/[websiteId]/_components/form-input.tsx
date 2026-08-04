@@ -5,7 +5,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -17,13 +16,7 @@ import {
 import { WebsiteType } from "@/configs/type";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
-import {
-  Calendar1Icon,
-  CalendarIcon,
-  ChevronDownIcon,
-  RefreshCcw,
-  Settings,
-} from "lucide-react";
+import { CalendarIcon, RefreshCcw, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
@@ -35,7 +28,11 @@ interface FormInputProps {
   setReloadData: any;
 }
 
-export const FormInput = ({ websiteList, setFormData, setReloadData }: FormInputProps) => {
+export const FormInput = ({
+  websiteList,
+  setFormData,
+  setReloadData,
+}: FormInputProps) => {
   const { websiteId } = useParams();
   const today = new Date();
   const [date, setDate] = useState<DateRange>({
@@ -66,14 +63,17 @@ export const FormInput = ({ websiteList, setFormData, setReloadData }: FormInput
       analysicType: analysicType,
       fromDate: date?.from ?? today,
       toDate: date?.to ?? today,
-    })
+    });
   }, [date, analysicType]);
 
   return (
-    <div className="flex gap-5 items-center justify-between">
-      <div className="flex gap-5 items-center">
-        <Select value={(websiteId as string) || ""} onValueChange={(value) => router.push(`/dashboard/website/${value}`)}>
-          <SelectTrigger className="w-60">
+    <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between landscape:gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3 landscape:flex-row landscape:flex-wrap landscape:items-center">
+        <Select
+          value={(websiteId as string) || ""}
+          onValueChange={(value) => router.push(`/dashboard/website/${value}`)}
+        >
+          <SelectTrigger className="w-full sm:w-60">
             <SelectValue placeholder="Select a website" />
           </SelectTrigger>
           <SelectContent>
@@ -92,34 +92,49 @@ export const FormInput = ({ websiteList, setFormData, setReloadData }: FormInput
             <Button
               variant={"outline"}
               data-empty={!date}
-              className={`data-[empty=true]:text-muted-foreground justify-start text-left font-normal
-                ${date?.to ? "w-[380px]" : "w-[220px]"}`}
+              className={`w-full justify-start text-left text-xs font-normal data-[empty=true]:text-muted-foreground sm:w-auto sm:text-sm
+                ${date?.to ? "sm:w-[380px]" : "sm:w-[220px]"}`}
             >
-              <CalendarIcon />
+              <CalendarIcon className="h-4 w-4" />
               {date?.from ? (
                 date?.to ? (
                   <>
-                    {format(date.from, "PPP")} - {format(date.to, "PPP")}
+                    <span className="sm:hidden landscape:inline">
+                      {format(date.from, "MMM d")} - {format(date.to, "MMM d")}
+                    </span>
+                    <span className="hidden sm:inline landscape:hidden">
+                      {format(date.from, "PPP")} - {format(date.to, "PPP")}
+                    </span>
                   </>
                 ) : (
-                  <>{format(date.from, "PPP")}</>
+                  <>
+                    <span className="sm:hidden landscape:inline">
+                      {format(date.from, "MMM d")}
+                    </span>
+                    <span className="hidden sm:inline landscape:hidden">
+                      {format(date.from, "PPP")}
+                    </span>
+                  </>
                 )
               ) : (
                 <span className="text-muted-foreground">Select a date</span>
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent
+            className="w-[min(96vw,22rem)] p-0 sm:w-auto"
+            align="start"
+          >
             <div className="flex justify-between items-center my-3 px-2">
-              <Button variant="outline" onClick={handleTodayClick}>
+              <Button variant="outline" size="sm" onClick={handleTodayClick}>
                 Today
               </Button>
-              <Button variant="outline" onClick={handleResetClick}>
+              <Button variant="outline" size="sm" onClick={handleResetClick}>
                 Reset
               </Button>
             </div>
             <Calendar
-              className="w-[280px]"
+              className="w-full p-2 sm:w-[280px]"
               mode="range"
               onSelect={handleDateChange}
               selected={date}
@@ -130,7 +145,7 @@ export const FormInput = ({ websiteList, setFormData, setReloadData }: FormInput
           value={analysicType}
           onValueChange={(value) => setAnalysicType(value)}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Select analysis type" />
           </SelectTrigger>
           <SelectContent>
@@ -140,13 +155,23 @@ export const FormInput = ({ websiteList, setFormData, setReloadData }: FormInput
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={() => setReloadData(true)}>
-          <RefreshCcw />
+        <Button
+          variant="outline"
+          className="w-full sm:w-auto landscape:w-auto"
+          onClick={() => setReloadData(true)}
+        >
+          <RefreshCcw className="h-4 w-4" />
         </Button>
       </div>
-      <Link href={`/dashboard/website/${websiteId}/settings`}>
-        <Button variant="outline" className="cursor-pointer">
-          <Settings />
+      <Link
+        href={`/dashboard/website/${websiteId}/settings`}
+        className="w-full lg:w-auto landscape:w-auto"
+      >
+        <Button
+          variant="outline"
+          className="w-full cursor-pointer lg:w-auto landscape:w-auto"
+        >
+          <Settings className="h-4 w-4" />
         </Button>
       </Link>
     </div>

@@ -69,7 +69,7 @@ function WebsiteDetail() {
   };
 
   return (
-    <div className="mt-10 mb-10">
+    <div className="mb-8 mt-6 sm:mb-10 sm:mt-8 landscape:mb-6 landscape:mt-4">
       <FormInput
         websiteList={websiteList}
         setFormData={setFormData}
@@ -81,7 +81,7 @@ function WebsiteDetail() {
         analyticsType={formData?.analysicType}
         liveUser={liveUser?.length}
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+      <div className="mt-4 grid grid-cols-1 gap-4 md:mt-5 md:grid-cols-2 md:gap-5 landscape:mt-3">
         <SourceWidget
           websiteAnalytics={websiteInfo?.analytics}
           loading={loading}

@@ -2,8 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LiveUserType, WebsiteInfoType } from "@/configs/type";
 import React from "react";
 import { LabelCountItem } from "./label-count-item";
-import { Separator } from "@/components/ui/separator";
-import { TrendingUp } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   ChartConfig,
@@ -36,38 +34,41 @@ export const PageViewAnalytics = ({
   return (
     <div className="mt-7">
       <Card>
-        <CardContent className="p-5 flex items-center justify-between gap-6">
+        <CardContent className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 sm:gap-4 sm:p-5 lg:grid-cols-5 landscape:grid-cols-3 landscape:gap-2">
           <LabelCountItem
             label="Visitors"
             value={webAnalytics?.totalVisitors}
           />
-          <Separator orientation="vertical" className="h-12" />
           <LabelCountItem
             label="Total PageViews"
             value={webAnalytics?.totalSessions}
           />
-          <Separator orientation="vertical" className="h-12" />
           <LabelCountItem
             label="Total Active Time"
             value={
               (Number(webAnalytics?.totalActiveTime) / 60).toFixed(1) + "min"
             }
           />
-          <Separator orientation="vertical" className="h-12" />
           <LabelCountItem
             label="Average Active Time"
             value={
               (Number(webAnalytics?.avgActiveTime) / 60).toFixed(1) + "min"
             }
           />
-          <Separator orientation="vertical" className="h-12" />
           <LabelCountItem label="Live Users" value={liveUser ?? 0} />
         </CardContent>
-        <CardContent className="p-5 mt-5">
-          <ChartContainer config={chartConfig} className='h-96 w-full'>
+        <CardContent className="mt-3 p-3 sm:mt-4 sm:p-5">
+          <ChartContainer
+            config={chartConfig}
+            className="h-60 w-full sm:h-[340px] sm:landscape:h-56 lg:h-96 landscape:h-44"
+          >
             <AreaChart
               accessibilityLayer
-              data={analyticsType === "hourly" ? webAnalytics?.hourlyVisitors : webAnalytics?.dailyVisitors}
+              data={
+                analyticsType === "hourly"
+                  ? webAnalytics?.hourlyVisitors
+                  : webAnalytics?.dailyVisitors
+              }
               margin={{
                 left: 12,
                 right: 12,
@@ -81,7 +82,8 @@ export const PageViewAnalytics = ({
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
+                minTickGap={24}
+                tickFormatter={(value) => String(value).slice(0, 3)}
               />
               <YAxis
                 allowDecimals={false}

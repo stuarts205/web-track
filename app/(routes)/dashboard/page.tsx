@@ -26,17 +26,17 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="mt-8">
-      <div className="flex items-center justify-between">
+    <div className="mt-6 sm:mt-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-bold text-xl">My web track dashboard</h2>
         <Link href="/dashboard/new">
-          <Button>+ Website</Button>
+          <Button className="w-full sm:w-auto">+ Website</Button>
         </Link>
       </div>
       <div>
         <div>
           {loading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3, 4].map((item, index) => {
                 return (
                   <div key={index} className="border p-4">
@@ -44,7 +44,7 @@ const Dashboard = () => {
                       <Skeleton className="h-8 w-8 rounded-sm" />
                       <Skeleton className="h-4 w-1/2 rounded-sm mt-2" />
                     </div>
-                    <Skeleton className="h-[80px] w-full mt-4" />
+                    <Skeleton className="mt-4 h-20 w-full" />
                   </div>
                 );
               })}
@@ -52,15 +52,15 @@ const Dashboard = () => {
           )}
         </div>
         {!loading && websiteList?.length === 0 ? (
-          <div className="flex flex-col justify-center items-center gap-4 p-8 border-2 border-dashed rounded-xl mt-5">
+          <div className="mt-5 flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed p-6 text-center sm:p-8">
             <Image src="/website.png" alt="websites" width={100} height={100} />
             <h2>You don't have any web sites added for tracking</h2>
             <Link href="/dashboard/new">
-              <Button>+ Website</Button>
+              <Button className="w-full sm:w-auto">+ Website</Button>
             </Link>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-5 lg:grid-cols-3 mt-5'>
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {websiteList?.map((website, index) => (
               <WebsiteCard websiteinfo={website} key={index} />
             ))}
