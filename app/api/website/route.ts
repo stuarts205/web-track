@@ -1,8 +1,8 @@
 import { db } from "@/configs/db";
-import { pageViewTable, websiteTable } from "@/configs/schema";
+import { clicksTable, pageViewTable, websiteTable } from "@/configs/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
-import { eq, and, desc, sql, gte, lte, or } from "drizzle-orm";
+import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { toZonedTime } from "date-fns-tz";
 import { formatDateInTZ, getSafeTimeZone } from "@/lib/utils";
 
@@ -197,23 +197,20 @@ export async function GET(req: NextRequest) {
 
     const clickEvents = await db
       .select({
-        type: pageViewTable.type,
-        clickedUrl: pageViewTable.exitUrl,
-        linkText: pageViewTable.refParams,
+        type: clicksTable.eventType,
+        clickedUrl: clicksTable.targetUrl,
+        linkText: clicksTable.label,
+        elementType: clicksTable.elementType,
       })
-      .from(pageViewTable)
+      .from(clicksTable)
       .where(
         and(
-          eq(pageViewTable.websiteId, site.websiteId),
-          ...(visitorId ? [eq(pageViewTable.visitorId, visitorId)] : []),
-          or(
-            eq(pageViewTable.type, "click"),
-            eq(pageViewTable.type, "image_click"),
-          ),
+          eq(clicksTable.websiteId, site.websiteId),
+          ...(visitorId ? [eq(clicksTable.visitorId, visitorId)] : []),
           ...(fromUnix && toUnix
             ? [
-                gte(sql`${pageViewTable.entryTime}::bigint`, fromUnix),
-                lte(sql`${pageViewTable.entryTime}::bigint`, toUnix),
+                gte(clicksTable.createdAt, fromUnix),
+                lte(clicksTable.createdAt, toUnix),
               ]
             : []),
         ),
@@ -394,7 +391,10 @@ export async function GET(req: NextRequest) {
       clickEvents.reduce(
         (acc, item) => {
           const url = item.clickedUrl || "Unknown";
-          const eventType = item.type === "image_click" ? "image" : "link";
+          const eventType =
+            item.elementType === "image" || item.type === "image_click"
+              ? "image"
+              : "link";
           const key = `${eventType}:${url}`;
 
           if (!acc[key]) {

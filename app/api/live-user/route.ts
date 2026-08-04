@@ -1,5 +1,5 @@
 import { db } from "@/configs/db";
-import { liveUserTable, pageViewTable } from "@/configs/schema";
+import { clicksTable, liveUserTable, pageViewTable } from "@/configs/schema";
 import { eq, and, gt, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { UAParser } from "ua-parser-js";
@@ -134,19 +134,19 @@ export async function GET(req: NextRequest) {
 
     const clickedImages = await db
       .select({
-        imageUrl: pageViewTable.exitUrl,
-        imageLabel: pageViewTable.refParams,
-        clickedAt: pageViewTable.entryTime,
+        imageUrl: clicksTable.targetUrl,
+        imageLabel: clicksTable.label,
+        clickedAt: clicksTable.createdAt,
       })
-      .from(pageViewTable)
+      .from(clicksTable)
       .where(
         and(
-          eq(pageViewTable.websiteId, websiteId),
-          eq(pageViewTable.visitorId, visitorId),
-          eq(pageViewTable.type, "image_click"),
+          eq(clicksTable.websiteId, websiteId),
+          eq(clicksTable.visitorId, visitorId),
+          eq(clicksTable.elementType, "image"),
         ),
       )
-      .orderBy(sql`${pageViewTable.entryTime}::bigint DESC`);
+      .orderBy(sql`${clicksTable.createdAt} DESC`);
 
     const liveUser = visitor[0];
     if (!liveUser) {

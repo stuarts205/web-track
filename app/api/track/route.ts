@@ -25,31 +25,12 @@ export async function OPTIONS(req: Request) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-
-  const normalizeImageUrl = (rawUrl: string, pageUrl?: string) => {
-    if (!rawUrl) return "";
-
-    try {
-      const base = pageUrl || "https://example.com";
-      const parsed = new URL(rawUrl, base);
-
-      // Normalize Next.js optimizer URLs back to the original image URL.
-      if (parsed.pathname === "/_next/image") {
-        const original = parsed.searchParams.get("url");
-        if (original) {
-          try {
-            return decodeURIComponent(original);
-          } catch {
-            return original;
-          }
-        }
-      }
-
-      return parsed.href;
-    } catch {
-      return rawUrl;
-    }
-  };
+  const legacyClickTypes = [
+    "click",
+    "image_click",
+    "menu_click",
+    "button_click",
+  ];
 
   const parser = new UAParser(req.headers.get("user-agent") || "");
   const deviceInfo = parser.getDevice()?.model;
@@ -63,14 +44,18 @@ export async function POST(req: NextRequest) {
   const geoRes = await fetch(`http://ip-api.com/json/69.27.10.190`);
   const geoInfo = await geoRes.json();
 
-  console.log("Body:", body);
-  console.log("Device Info:", deviceInfo);
-  console.log("OS Info:", osInfo);
-  console.log("Browser Info:", browserInfo);
-  console.log("IP Address:", ip);
-  console.log("Geo Info:", geoInfo);
-
   let result;
+
+  if (legacyClickTypes.includes(body?.type)) {
+    return NextResponse.json(
+      {
+        message: "Click events moved to /api/clicks",
+        type: body?.type,
+        endpoint: "/api/clicks",
+      },
+      { status: 400, headers: CORS_HEADERS },
+    );
+  }
 
   if (body?.type === "entry") {
     result = await db
@@ -109,60 +94,6 @@ export async function POST(req: NextRequest) {
         exitUrl: body.exitUrl,
       })
       .where(eq(pageViewTable.visitorId, body.visitorId))
-      .returning();
-  } else if (body?.type === "click") {
-    result = await db
-      .insert(pageViewTable)
-      .values({
-        visitorId: body.visitorId,
-        websiteId: body.websiteId,
-        domain: body.domain,
-        type: body.type,
-        entryTime: body.entryTime,
-        url: body.url,
-        exitUrl: body.clickedUrl,
-        referrer: body.referrer,
-        refParams: body.linkText,
-        device: deviceInfo,
-        os: osInfo,
-        browser: browserInfo,
-        ipAddress: ip || "",
-        city: geoInfo.city,
-        country: geoInfo.country,
-        countryCode: geoInfo.countryCode,
-        region: geoInfo.region,
-      })
-      .returning();
-  } else if (body?.type === "image_click") {
-    const imageDescriptor =
-      body.imageLabel ||
-      body.imageAlt ||
-      body.imageId ||
-      body.imageClass ||
-      "Untitled Image";
-    const normalizedImageUrl = normalizeImageUrl(body.imageUrl, body.url);
-
-    result = await db
-      .insert(pageViewTable)
-      .values({
-        visitorId: body.visitorId,
-        websiteId: body.websiteId,
-        domain: body.domain,
-        type: body.type,
-        entryTime: body.entryTime,
-        url: body.url,
-        exitUrl: normalizedImageUrl,
-        referrer: body.referrer,
-        refParams: imageDescriptor,
-        device: deviceInfo,
-        os: osInfo,
-        browser: browserInfo,
-        ipAddress: ip || "",
-        city: geoInfo.city,
-        country: geoInfo.country,
-        countryCode: geoInfo.countryCode,
-        region: geoInfo.region,
-      })
       .returning();
   } else {
     return NextResponse.json(

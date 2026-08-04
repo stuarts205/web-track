@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { SourceWidget } from "./_components/source-widget";
 import { ClickedLinksWidget } from "./_components/clicked-links-widget";
 import { VisitorPageviewsWidget } from "./_components/visitor-pageviews-widget";
+import { RecentClicksWidget } from "./_components/recent-clicks-widget";
 
 function WebsiteDetail() {
   const { websiteId } = useParams();
@@ -86,6 +87,7 @@ function WebsiteDetail() {
           websiteAnalytics={websiteInfo?.analytics}
           loading={loading}
         />
+        <RecentClicksWidget websiteId={activeWebsiteId as string} />
         {/* <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
           loading={loading}

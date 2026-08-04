@@ -89,9 +89,36 @@
     }
   };
 
+  const sendClickEvent = (payload) => {
+    fetch("https://web-track-seven.vercel.app/api/clicks", {
+      method: "POST",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }).catch(() => {
+      // Do not surface click tracking errors to host websites.
+    });
+  };
+
+  const getElementLabel = (element, fallback) => {
+    if (!element) return fallback;
+
+    return (
+      (element.getAttribute("aria-label") || "").trim() ||
+      (element.textContent || "").trim() ||
+      element.id ||
+      fallback
+    );
+  };
+
   const handleLinkClick = (event) => {
     const anchor = event.target.closest("a[href]");
     const image = event.target.closest("img");
+    const clickable = event.target.closest(
+      "[role='menuitem'], [data-menu-item], button",
+    );
 
     if (image) {
       const imageLabel =
@@ -102,6 +129,7 @@
 
       const imagePayload = {
         type: "image_click",
+        elementType: "image",
         websiteId,
         domain,
         visitorId,
@@ -112,48 +140,71 @@
         imageId: image.id || "",
         imageClass: (image.className || "").toString().trim().slice(0, 255),
         imageLabel: imageLabel.toString().trim().slice(0, 255),
+        elementId: image.id || "",
+        elementClass: (image.className || "").toString().trim().slice(0, 255),
+        label: imageLabel.toString().trim().slice(0, 255),
         referrer,
       };
 
-      fetch("https://web-track-seven.vercel.app/api/track", {
-        method: "POST",
-        keepalive: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(imagePayload),
-      }).catch(() => {
-        // Do not surface image click tracking errors to host websites.
-      });
+      sendClickEvent(imagePayload);
+      return;
     }
 
-    if (!anchor) return;
+    if (anchor) {
+      const href = anchor.getAttribute("href") || "";
+      if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
+        const isMenuItem =
+          anchor.matches("[role='menuitem'], [data-menu-item]") ||
+          Boolean(anchor.closest("[role='menu'], nav, [data-menu]"));
 
-    const href = anchor.getAttribute("href") || "";
-    if (!href || href.startsWith("#") || href.startsWith("javascript:")) return;
+        const clickPayload = {
+          type: isMenuItem ? "menu_click" : "click",
+          elementType: isMenuItem ? "menu" : "link",
+          websiteId,
+          domain,
+          visitorId,
+          entryTime: Math.floor(Date.now() / 1000),
+          url: window.location.href,
+          clickedUrl: anchor.href,
+          linkText: (anchor.textContent || "").trim().slice(0, 255),
+          elementId: anchor.id || "",
+          elementClass: (anchor.className || "")
+            .toString()
+            .trim()
+            .slice(0, 255),
+          label: getElementLabel(anchor, "Untitled Link").slice(0, 255),
+          referrer,
+        };
 
-    const clickPayload = {
-      type: "click",
+        sendClickEvent(clickPayload);
+      }
+
+      return;
+    }
+
+    if (!clickable) return;
+
+    const clickableType = clickable.matches("button")
+      ? "button_click"
+      : "menu_click";
+
+    const clickablePayload = {
+      type: clickableType,
+      elementType: clickableType === "button_click" ? "button" : "menu",
       websiteId,
       domain,
       visitorId,
       entryTime: Math.floor(Date.now() / 1000),
       url: window.location.href,
-      clickedUrl: anchor.href,
-      linkText: (anchor.textContent || "").trim().slice(0, 255),
+      clickedUrl: "",
+      linkText: getElementLabel(clickable, "Untitled Menu Item").slice(0, 255),
+      elementId: clickable.id || "",
+      elementClass: (clickable.className || "").toString().trim().slice(0, 255),
+      label: getElementLabel(clickable, "Untitled Menu Item").slice(0, 255),
       referrer,
     };
 
-    fetch("https://web-track-seven.vercel.app/api/track", {
-      method: "POST",
-      keepalive: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(clickPayload),
-    }).catch(() => {
-      // Do not surface click tracking errors to host websites.
-    });
+    sendClickEvent(clickablePayload);
   };
 
   document.addEventListener("click", handleLinkClick, true);
