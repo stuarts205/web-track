@@ -148,19 +148,50 @@ export async function GET(req: NextRequest) {
       )
       .orderBy(sql`${clicksTable.createdAt} DESC`);
 
-    const liveUser = visitor[0];
-    if (!liveUser) {
-      return NextResponse.json(null);
-    }
+    const clickedEvents = await db
+      .select({
+        eventType: clicksTable.eventType,
+        elementType: clicksTable.elementType,
+        label: clicksTable.label,
+        targetUrl: clicksTable.targetUrl,
+        clickedAt: clicksTable.createdAt,
+      })
+      .from(clicksTable)
+      .where(
+        and(
+          eq(clicksTable.websiteId, websiteId),
+          eq(clicksTable.visitorId, visitorId),
+          sql`${clicksTable.elementType} <> 'image'`,
+        ),
+      )
+      .orderBy(sql`${clicksTable.createdAt} DESC`);
 
-    const isLive = Number(liveUser.last_seen) > now - 30000;
+    const liveUser = visitor[0];
+    const isLive = liveUser ? Number(liveUser.last_seen) > now - 30000 : false;
     const totalActiveTime = Number(activeTimeAgg[0]?.totalActiveTime ?? 0);
 
+    const detailPayload = liveUser ?? {
+      id: 0,
+      websiteId,
+      visitorId,
+      last_seen: 0,
+      city: "",
+      country: "",
+      countryCode: "",
+      region: "",
+      lat: "",
+      lng: "",
+      device: "",
+      os: "",
+      browser: "",
+    };
+
     return NextResponse.json({
-      ...liveUser,
+      ...detailPayload,
       totalActiveTime,
       isLive,
       clickedImages,
+      clickedEvents,
     });
   }
 

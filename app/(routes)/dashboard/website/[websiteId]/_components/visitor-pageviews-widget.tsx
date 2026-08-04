@@ -11,10 +11,19 @@ type ImageClickType = {
   clickedAt: string | null;
 };
 
+type ClickedEventType = {
+  eventType: string;
+  elementType: string;
+  label: string | null;
+  targetUrl: string | null;
+  clickedAt: string | null;
+};
+
 type VisitorDetailType = LiveUserType & {
   totalActiveTime: number;
   isLive: boolean;
   clickedImages: ImageClickType[];
+  clickedEvents: ClickedEventType[];
 };
 
 interface VisitorPageviewsWidgetProps {
@@ -266,6 +275,59 @@ export const VisitorPageviewsWidget = ({
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       No images clicked for this visitor.
+                    </p>
+                  )}
+                </div>
+                <div className="rounded-sm bg-muted/40 p-2">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                    Clicked events
+                  </p>
+                  {visitorDetail.clickedEvents?.length ? (
+                    <div className="space-y-2">
+                      {visitorDetail.clickedEvents.map((event, index) => {
+                        const clickedAtText = event.clickedAt
+                          ? new Date(
+                              Number(event.clickedAt) * 1000,
+                            ).toLocaleString()
+                          : "Unknown time";
+
+                        const displayLabel =
+                          event.label?.trim() ||
+                          event.targetUrl?.trim() ||
+                          "Untitled Event";
+
+                        return (
+                          <div
+                            key={`${event.elementType}-${event.clickedAt || "no-time"}-${index}`}
+                            className="rounded-sm border bg-background p-2"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                                {event.elementType}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {event.eventType}
+                              </span>
+                            </div>
+                            <p className="mt-1 truncate text-xs font-medium">
+                              {displayLabel}
+                            </p>
+                            <p
+                              className="truncate text-[11px] text-muted-foreground"
+                              title={event.targetUrl || ""}
+                            >
+                              {event.targetUrl || "No target URL"}
+                            </p>
+                            <p className="truncate text-[11px] text-muted-foreground">
+                              {clickedAtText}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      No click events found for this visitor.
                     </p>
                   )}
                 </div>
