@@ -22,6 +22,11 @@ type ClickedEventType = {
 type VisitorDetailType = LiveUserType & {
   totalActiveTime: number;
   isLive: boolean;
+  swipeStats: {
+    total: number;
+    next: number;
+    previous: number;
+  };
   clickedImages: ImageClickType[];
   clickedEvents: ClickedEventType[];
 };
@@ -108,6 +113,18 @@ export const VisitorPageviewsWidget = ({
           value: visitorDetail.last_seen
             ? new Date(Number(visitorDetail.last_seen)).toLocaleString()
             : "-",
+        },
+        {
+          label: "image_swipes_total",
+          value: visitorDetail.swipeStats?.total ?? 0,
+        },
+        {
+          label: "image_swipes_next",
+          value: visitorDetail.swipeStats?.next ?? 0,
+        },
+        {
+          label: "image_swipes_previous",
+          value: visitorDetail.swipeStats?.previous ?? 0,
         },
         { label: "city", value: visitorDetail.city || "-" },
         { label: "region", value: visitorDetail.region || "-" },
@@ -205,6 +222,10 @@ export const VisitorPageviewsWidget = ({
               <div className="shrink-0 text-left sm:text-right">
                 <p className="text-lg font-semibold">{item.pageviews}</p>
                 <p className="text-xs text-muted-foreground">pageviews</p>
+                <span className="mt-1 inline-block rounded-full border bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  swipes {item.swipeStats?.total ?? 0} (
+                  {item.swipeStats?.next ?? 0}/{item.swipeStats?.previous ?? 0})
+                </span>
               </div>
             </button>
           );
@@ -232,6 +253,37 @@ export const VisitorPageviewsWidget = ({
                       <div className="break-all font-medium">{item.value}</div>
                     </div>
                   ))}
+                </div>
+                <div className="rounded-sm bg-muted/40 p-2">
+                  <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+                    Swipe summary
+                  </p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <div className="rounded-sm border bg-background p-2">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Total
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {visitorDetail.swipeStats?.total ?? 0}
+                      </p>
+                    </div>
+                    <div className="rounded-sm border bg-background p-2">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Next
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {visitorDetail.swipeStats?.next ?? 0}
+                      </p>
+                    </div>
+                    <div className="rounded-sm border bg-background p-2">
+                      <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Previous
+                      </p>
+                      <p className="text-sm font-semibold">
+                        {visitorDetail.swipeStats?.previous ?? 0}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 <div className="rounded-sm bg-muted/40 p-2">
                   <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">

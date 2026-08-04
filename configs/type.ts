@@ -35,6 +35,7 @@ export type SwipeStatsType = {
 export type VisitorPageviewType = {
   visitorId: string;
   pageviews: number;
+  swipeStats: SwipeStatsType;
 };
 
 export type ClickedLinkType = {

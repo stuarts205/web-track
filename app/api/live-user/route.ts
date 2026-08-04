@@ -164,6 +164,21 @@ export async function GET(req: NextRequest) {
       )
       .orderBy(sql`${clicksTable.createdAt} DESC`);
 
+    const swipeStats = clickedEvents.reduce(
+      (acc, event) => {
+        if (event.eventType === "image_swipe_next") {
+          acc.next += 1;
+          acc.total += 1;
+        } else if (event.eventType === "image_swipe_previous") {
+          acc.previous += 1;
+          acc.total += 1;
+        }
+
+        return acc;
+      },
+      { total: 0, next: 0, previous: 0 },
+    );
+
     const liveUser = visitor[0];
     const isLive = liveUser ? Number(liveUser.last_seen) > now - 30000 : false;
     const totalActiveTime = Number(activeTimeAgg[0]?.totalActiveTime ?? 0);
@@ -188,6 +203,7 @@ export async function GET(req: NextRequest) {
       ...detailPayload,
       totalActiveTime,
       isLive,
+      swipeStats,
       clickedImages,
       clickedEvents,
     });

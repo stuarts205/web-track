@@ -197,6 +197,7 @@ export async function GET(req: NextRequest) {
 
     const clickEvents = await db
       .select({
+        visitorId: clicksTable.visitorId,
         type: clicksTable.eventType,
         clickedUrl: clicksTable.targetUrl,
         linkText: clicksTable.label,
@@ -308,6 +309,27 @@ export async function GET(req: NextRequest) {
     const avgActiveTime =
       totalVisitors > 0 ? Math.round(totalActiveTime / totalVisitors) : 0;
 
+    const swipeStatsByVisitor = clickEvents.reduce(
+      (acc, item) => {
+        if (!item.visitorId) return acc;
+
+        if (!acc[item.visitorId]) {
+          acc[item.visitorId] = { total: 0, next: 0, previous: 0 };
+        }
+
+        if (item.type === "image_swipe_next") {
+          acc[item.visitorId].next += 1;
+          acc[item.visitorId].total += 1;
+        } else if (item.type === "image_swipe_previous") {
+          acc[item.visitorId].previous += 1;
+          acc[item.visitorId].total += 1;
+        }
+
+        return acc;
+      },
+      {} as Record<string, { total: number; next: number; previous: number }>,
+    );
+
     const visitorPageviews = Object.entries(
       views.reduce(
         (acc, v) => {
@@ -318,7 +340,15 @@ export async function GET(req: NextRequest) {
         {} as Record<string, number>,
       ),
     )
-      .map(([visitorId, pageviews]) => ({ visitorId, pageviews }))
+      .map(([visitorId, pageviews]) => ({
+        visitorId,
+        pageviews,
+        swipeStats: swipeStatsByVisitor[visitorId] || {
+          total: 0,
+          next: 0,
+          previous: 0,
+        },
+      }))
       .sort((a, b) => b.pageviews - a.pageviews);
 
     const hourlyMap: Record<string, Set<string>> = {};
