@@ -34,7 +34,7 @@ export const PageViewAnalytics = ({
   return (
     <div className="mt-7">
       <Card>
-        <CardContent className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-3 sm:gap-4 sm:p-5 lg:grid-cols-5 landscape:grid-cols-3 landscape:gap-2">
+        <CardContent className="flex items-center lg:justify-between gap-3 p-3 sm:mt-4 sm:p-5">
           <LabelCountItem
             label="Visitors"
             value={webAnalytics?.totalVisitors}
