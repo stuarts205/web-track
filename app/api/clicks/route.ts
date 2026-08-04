@@ -26,8 +26,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    console.log("Received click event:", body);
-
     if (!body?.websiteId) {
       return NextResponse.json(
         { message: "websiteId is required" },

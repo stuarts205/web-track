@@ -67,12 +67,8 @@ async function main() {
     updated += 1;
   }
 
-  console.log(`Processed ${rows.length} image_click rows.`);
-  console.log(`Updated ${updated} rows.`);
-  console.log(`Skipped ${skipped} rows.`);
 }
 
 main().catch((error) => {
-  console.error("Backfill failed:", error);
   process.exit(1);
 });

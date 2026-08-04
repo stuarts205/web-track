@@ -41,7 +41,6 @@ function WebsiteDetail() {
 
   const getWebsiteList = async () => {
     const response = await axios.get("/api/website?websiteOnly=true");
-    console.log(response.data);
     setWebsiteList(response.data);
   };
 
@@ -58,7 +57,6 @@ function WebsiteDetail() {
     const websiteResult = await axios.get(
       `/api/website?websiteId=${activeWebsiteId}&from=${fromDate}&to=${toDate}`,
     );
-    console.log(websiteResult.data);
     setWebsiteInfo(websiteResult.data[0]);
     setLoading(false);
     getLiveUser();

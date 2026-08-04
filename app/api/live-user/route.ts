@@ -96,7 +96,6 @@ export async function POST(req: NextRequest) {
       { headers: CORS_HEADERS },
     );
   } catch (err: any) {
-    console.error(err);
     return NextResponse.json(
       { status: "error", message: err.message },
       { status: 500, headers: CORS_HEADERS },

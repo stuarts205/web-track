@@ -1,5 +1,4 @@
 (function () {
-  console.log("Analytics script loaded");
 
   function generateUniqueId() {
     return Date.now().toString(36) + Math.random().toString().substr(2, 9);
@@ -19,7 +18,6 @@
     localStorage.setItem("webtrack_visitor_id", visitorId);
     localStorage.setItem("webtrack_session_time", now);
   } else {
-    console.log("Existing session is still valid");
   }
 
   const script =
@@ -29,7 +27,6 @@
   const domain = script ? script.getAttribute("data-domain") : null;
 
   if (!websiteId) {
-    console.warn("WebTrack: missing data-website-id on analytics script");
     return;
   }
 

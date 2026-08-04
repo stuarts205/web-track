@@ -466,7 +466,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  console.log(req);
   const { websiteId } = await req.json();
   const user = await currentUser();
 
