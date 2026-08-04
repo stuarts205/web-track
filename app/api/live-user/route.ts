@@ -161,7 +161,6 @@ export async function GET(req: NextRequest) {
         and(
           eq(clicksTable.websiteId, websiteId),
           eq(clicksTable.visitorId, visitorId),
-          sql`${clicksTable.elementType} <> 'image'`,
         ),
       )
       .orderBy(sql`${clicksTable.createdAt} DESC`);
