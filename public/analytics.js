@@ -221,9 +221,12 @@
   };
 
   const handleLinkClick = (event) => {
-    const anchor = event.target.closest("a[href]");
-    const image = event.target.closest("img");
-    const clickable = event.target.closest(
+    const eventTarget = event.target;
+    if (!eventTarget || !eventTarget.closest) return;
+
+    const anchor = eventTarget.closest("a[href]");
+    const image = eventTarget.closest("img");
+    const clickable = eventTarget.closest(
       "[role='menuitem'], [data-menu-item], button",
     );
 
@@ -259,7 +262,7 @@
 
     if (anchor) {
       const href = anchor.getAttribute("href") || "";
-      if (href && !href.startsWith("#") && !href.startsWith("javascript:")) {
+      if (href && !href.startsWith("javascript:")) {
         const isMenuItem =
           anchor.matches("[role='menuitem'], [data-menu-item]") ||
           Boolean(anchor.closest("[role='menu'], nav, [data-menu]"));
@@ -272,7 +275,7 @@
           visitorId,
           entryTime: Math.floor(Date.now() / 1000),
           url: window.location.href,
-          clickedUrl: anchor.href,
+          clickedUrl: anchor.href || href,
           linkText: (anchor.textContent || "").trim().slice(0, 255),
           elementId: anchor.id || "",
           elementClass: (anchor.className || "")
@@ -286,6 +289,45 @@
         sendClickEvent(clickPayload);
       }
 
+      return;
+    }
+
+    const customMenuClickable = eventTarget.closest("[data-webtrack-menu]");
+
+    if (!clickable && customMenuClickable) {
+      const dataTarget =
+        customMenuClickable.getAttribute("data-scroll-section") ||
+        customMenuClickable.getAttribute("data-section-target") ||
+        customMenuClickable.getAttribute("data-target") ||
+        customMenuClickable.getAttribute("aria-controls") ||
+        "";
+
+      const menuPayload = {
+        type: "menu_click",
+        elementType: "menu",
+        websiteId,
+        domain,
+        visitorId,
+        entryTime: Math.floor(Date.now() / 1000),
+        url: window.location.href,
+        clickedUrl: dataTarget ? `#${dataTarget.replace(/^#/, "")}` : "",
+        linkText: getElementLabel(
+          customMenuClickable,
+          "Untitled Menu Item",
+        ).slice(0, 255),
+        elementId: customMenuClickable.id || "",
+        elementClass: (customMenuClickable.className || "")
+          .toString()
+          .trim()
+          .slice(0, 255),
+        label: getElementLabel(customMenuClickable, "Untitled Menu Item").slice(
+          0,
+          255,
+        ),
+        referrer,
+      };
+
+      sendClickEvent(menuPayload);
       return;
     }
 
