@@ -117,7 +117,8 @@ export async function GET(req: NextRequest) {
           eq(liveUserTable.websiteId, websiteId),
           eq(liveUserTable.visitorId, visitorId),
         ),
-      );
+      )
+      .orderBy(sql`${liveUserTable.last_seen} ASC`);
 
     const activeTimeAgg = await db
       .select({
@@ -180,6 +181,7 @@ export async function GET(req: NextRequest) {
     );
 
     const liveUser = visitor[0];
+
     const isLive = liveUser ? Number(liveUser.last_seen) > now - 30000 : false;
     const totalActiveTime = Number(activeTimeAgg[0]?.totalActiveTime ?? 0);
 
