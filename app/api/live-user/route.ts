@@ -118,7 +118,6 @@ export async function GET(req: NextRequest) {
           eq(liveUserTable.visitorId, visitorId),
         ),
       )
-      .orderBy(sql`${liveUserTable.last_seen} ASC`);
 
     const activeTimeAgg = await db
       .select({

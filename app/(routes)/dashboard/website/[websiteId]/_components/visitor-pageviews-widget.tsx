@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LiveUserType, VisitorPageviewType } from "@/configs/type";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 type ImageClickType = {
   imageUrl: string | null;
@@ -44,6 +44,24 @@ export const VisitorPageviewsWidget = ({
   websiteId,
   liveUsers,
 }: VisitorPageviewsWidgetProps) => {
+  const sortedVisitorPageviews = useMemo(() => {
+    if (!visitorPageviews) return [];
+
+    return [...visitorPageviews].sort((a, b) => {
+      const aLastSeen = a.lastSeen ?? 0;
+      const bLastSeen = b.lastSeen ?? 0;
+
+      if (bLastSeen !== aLastSeen) return bLastSeen - aLastSeen;
+
+      const aTime = a.lastEntryTime ?? 0;
+      const bTime = b.lastEntryTime ?? 0;
+
+      if (bTime !== aTime) return bTime - aTime;
+      if (b.pageviews !== a.pageviews) return b.pageviews - a.pageviews;
+      return a.visitorId.localeCompare(b.visitorId);
+    });
+  }, [visitorPageviews]);
+
   const [expandedVisitorId, setExpandedVisitorId] = useState<string | null>(
     null,
   );
@@ -188,7 +206,7 @@ export const VisitorPageviewsWidget = ({
         <CardTitle>Pageviews by Visitor</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 p-4 sm:p-6">
-        {visitorPageviews.slice(0, 15).map((item) => {
+        {sortedVisitorPageviews.slice(0, 15).map((item) => {
           const isActive = expandedVisitorId === item.visitorId;
           const isLive = liveVisitorSet.has(item.visitorId);
 

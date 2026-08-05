@@ -1,5 +1,10 @@
 import { db } from "@/configs/db";
-import { clicksTable, pageViewTable, websiteTable } from "@/configs/schema";
+import {
+  clicksTable,
+  liveUserTable,
+  pageViewTable,
+  websiteTable,
+} from "@/configs/schema";
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
@@ -217,6 +222,23 @@ export async function GET(req: NextRequest) {
         ),
       );
 
+    const liveUsers = await db
+      .select({
+        visitorId: liveUserTable.visitorId,
+        lastSeen: liveUserTable.last_seen,
+      })
+      .from(liveUserTable)
+      .where(eq(liveUserTable.websiteId, site.websiteId));
+
+    const lastSeenByVisitor = liveUsers.reduce(
+      (acc, user) => {
+        if (!user.visitorId) return acc;
+        acc[user.visitorId] = Number(user.lastSeen);
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
     const last24HourViews = await db
       .select({ visitorId: pageViewTable.visitorId })
       .from(pageViewTable)
@@ -330,26 +352,55 @@ export async function GET(req: NextRequest) {
       {} as Record<string, { total: number; next: number; previous: number }>,
     );
 
-    const visitorPageviews = Object.entries(
-      views.reduce(
-        (acc, v) => {
-          if (!v.visitorId) return acc;
-          acc[v.visitorId] = (acc[v.visitorId] || 0) + 1;
-          return acc;
-        },
-        {} as Record<string, number>,
-      ),
-    )
-      .map(([visitorId, pageviews]) => ({
+    const visitorStats = views.reduce(
+      (acc, v) => {
+        if (!v.visitorId) return acc;
+
+        const entryTime = Number(v.entryTime);
+        const normalizedEntryTime = Number.isFinite(entryTime) ? entryTime : 0;
+
+        if (!acc[v.visitorId]) {
+          acc[v.visitorId] = {
+            pageviews: 0,
+            lastEntryTime: normalizedEntryTime,
+          };
+        }
+
+        acc[v.visitorId].pageviews += 1;
+        acc[v.visitorId].lastEntryTime = Math.max(
+          acc[v.visitorId].lastEntryTime,
+          normalizedEntryTime,
+        );
+
+        return acc;
+      },
+      {} as Record<string, { pageviews: number; lastEntryTime: number }>,
+    );
+
+    const visitorPageviews = Object.entries(visitorStats)
+      .map(([visitorId, stats]) => ({
         visitorId,
-        pageviews,
+        pageviews: stats.pageviews,
+        lastSeen: lastSeenByVisitor[visitorId] ?? null,
+        lastEntryTime: stats.lastEntryTime > 0 ? stats.lastEntryTime : null,
         swipeStats: swipeStatsByVisitor[visitorId] || {
           total: 0,
           next: 0,
           previous: 0,
         },
       }))
-      .sort((a, b) => b.pageviews - a.pageviews);
+      .sort((a, b) => {
+        const aLastSeen = a.lastSeen ?? 0;
+        const bLastSeen = b.lastSeen ?? 0;
+        if (bLastSeen !== aLastSeen) return bLastSeen - aLastSeen;
+
+        const aTime = a.lastEntryTime ?? 0;
+        const bTime = b.lastEntryTime ?? 0;
+
+        if (bTime !== aTime) return bTime - aTime;
+        if (b.pageviews !== a.pageviews) return b.pageviews - a.pageviews;
+        return a.visitorId.localeCompare(b.visitorId);
+      });
 
     const hourlyMap: Record<string, Set<string>> = {};
 
