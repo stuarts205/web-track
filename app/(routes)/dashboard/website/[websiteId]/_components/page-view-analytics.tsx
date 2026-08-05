@@ -32,7 +32,7 @@ export const PageViewAnalytics = ({
 }: PageViewAnalyticsProps) => {
   const webAnalytics = websiteInfo?.analytics;
   return (
-    <div className="mt-7">
+    <div className="mt-7 mb-5">
       <Card>
         <CardContent className="flex items-center lg:justify-between gap-3 p-3 sm:mt-4 sm:p-5">
           <LabelCountItem

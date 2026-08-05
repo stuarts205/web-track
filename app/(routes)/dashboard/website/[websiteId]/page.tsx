@@ -70,26 +70,29 @@ function WebsiteDetail() {
 
   return (
     <div className="mb-8 mt-6 sm:mb-10 sm:mt-8 landscape:mb-6 landscape:mt-4">
-      <FormInput
-        websiteList={websiteList}
-        setFormData={setFormData}
-        setReloadData={getWebsiteAnalyticDetail}
-      />
-      <PageViewAnalytics
-        websiteInfo={websiteInfo}
-        loading={loading}
-        analyticsType={formData?.analysicType}
-        liveUser={liveUser?.length}
-      />
-      <div className="mt-4 grid grid-cols-1 gap-4 md:mt-5 md:grid-cols-2 md:gap-5 landscape:mt-3">
+      <div className="flex-col items-center justify-between gap-4 sm:mb-6">
+        <FormInput
+          websiteList={websiteList}
+          setFormData={setFormData}
+          setReloadData={getWebsiteAnalyticDetail}
+        />
+        <PageViewAnalytics
+          websiteInfo={websiteInfo}
+          loading={loading}
+          analyticsType={formData?.analysicType}
+          liveUser={liveUser?.length}
+        />
         <SourceWidget
           websiteAnalytics={websiteInfo?.analytics}
           loading={loading}
         />
-        <SwipeCountWidget
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 md:mt-5 md:grid-cols-2 md:gap-5 landscape:mt-3">
+        {/* <SwipeCountWidget
           swipeStats={websiteInfo?.analytics?.swipeStats}
           loading={loading}
-        />
+        /> */}
         <RecentClicksWidget websiteId={activeWebsiteId as string} />
         {/* <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
