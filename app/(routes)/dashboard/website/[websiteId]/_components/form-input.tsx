@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { WebsiteType } from "@/configs/type";
+import { WebsiteAnalyticsFormDataType, WebsiteType } from "@/configs/type";
 import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { CalendarIcon, RefreshCcw, Settings } from "lucide-react";
@@ -24,8 +24,8 @@ import Link from "next/link";
 
 interface FormInputProps {
   websiteList: WebsiteType[];
-  setFormData: any;
-  setReloadData: any;
+  setFormData: (data: WebsiteAnalyticsFormDataType) => void;
+  setReloadData: () => void | Promise<void>;
 }
 
 export const FormInput = ({
@@ -158,7 +158,7 @@ export const FormInput = ({
         <Button
           variant="outline"
           className="w-full sm:w-auto landscape:w-auto"
-          onClick={() => setReloadData(true)}
+          onClick={() => setReloadData()}
         >
           <RefreshCcw className="h-4 w-4" />
         </Button>

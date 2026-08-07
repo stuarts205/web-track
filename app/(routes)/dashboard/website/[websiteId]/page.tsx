@@ -1,5 +1,10 @@
 "use client";
-import { LiveUserType, WebsiteInfoType, WebsiteType } from "@/configs/type";
+import {
+  LiveUserType,
+  WebsiteAnalyticsFormDataType,
+  WebsiteInfoType,
+  WebsiteType,
+} from "@/configs/type";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -18,7 +23,7 @@ function WebsiteDetail() {
   const [websiteList, setWebsiteList] = useState<WebsiteType[]>([]);
   const [loading, setLoading] = useState(false);
   const [websiteInfo, setWebsiteInfo] = useState<WebsiteInfoType | null>(null);
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<WebsiteAnalyticsFormDataType>({
     analysicType: "hourly",
     fromDate: new Date(),
     toDate: new Date(),
@@ -52,7 +57,7 @@ function WebsiteDetail() {
   const getWebsiteAnalyticDetail = async () => {
     setLoading(true);
     const fromDate = format(formData?.fromDate, "yyyy-MM-dd");
-    const toDate = formData?.to
+    const toDate = formData?.toDate
       ? format(formData?.toDate, "yyyy-MM-dd")
       : fromDate;
     const websiteResult = await axios.get(
@@ -73,7 +78,9 @@ function WebsiteDetail() {
       <div className="flex-col items-center justify-between gap-4 sm:mb-6">
         <FormInput
           websiteList={websiteList}
-          setFormData={setFormData}
+          setFormData={(data: WebsiteAnalyticsFormDataType) =>
+            setFormData(data)
+          }
           setReloadData={getWebsiteAnalyticDetail}
         />
         <PageViewAnalytics

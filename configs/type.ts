@@ -12,6 +12,12 @@ export type WebsiteInfoType = {
   analytics: AnalyticsType;
 };
 
+export type WebsiteAnalyticsFormDataType = {
+  analysicType: "hourly" | "daily";
+  fromDate: Date;
+  toDate: Date;
+};
+
 export type AnalyticsType = {
   avgActiveTime: number;
   totalActiveTime: number;
