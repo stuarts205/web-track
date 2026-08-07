@@ -39,7 +39,8 @@ export const FormInput = ({
     from: today,
   });
   const router = useRouter();
-  const [analysicType, setAnalysicType] = useState<string>("hourly");
+  const [analysicType, setAnalysicType] =
+    useState<WebsiteAnalyticsFormDataType["analysicType"]>("hourly");
 
   const handleDateChange = (selected?: DateRange) => {
     if (!selected?.from) return;
@@ -143,7 +144,11 @@ export const FormInput = ({
         </Popover>
         <Select
           value={analysicType}
-          onValueChange={(value) => setAnalysicType(value)}
+          onValueChange={(value) =>
+            setAnalysicType(
+              value as WebsiteAnalyticsFormDataType["analysicType"],
+            )
+          }
         >
           <SelectTrigger className="w-full sm:w-[140px]">
             <SelectValue placeholder="Select analysis type" />
