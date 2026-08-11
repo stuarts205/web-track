@@ -91,7 +91,7 @@ export const TrackerRulesWidget = ({ websiteId }: TrackerRulesWidgetProps) => {
   };
 
   return (
-    <Card>
+    <Card className="h-fit self-start">
       <CardHeader>
         <CardTitle>Tracker Rules</CardTitle>
       </CardHeader>
@@ -99,7 +99,7 @@ export const TrackerRulesWidget = ({ websiteId }: TrackerRulesWidgetProps) => {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_150px_auto]">
           <Input
             placeholder="Event name (example: user_login)"
-            value={eventName}
+            value={""}
             onChange={(e) => setEventName(e.target.value)}
           />
           <select
@@ -133,7 +133,7 @@ export const TrackerRulesWidget = ({ websiteId }: TrackerRulesWidgetProps) => {
 
         {!loading && !error && rules.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No rules yet. Add user_login with source webhook to track sign-ins.
+            No rules yet. Add a rule to start tracking events.
           </p>
         ) : null}
 

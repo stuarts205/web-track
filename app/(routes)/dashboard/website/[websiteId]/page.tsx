@@ -102,19 +102,19 @@ function WebsiteDetail() {
           swipeStats={websiteInfo?.analytics?.swipeStats}
           loading={loading}
         /> */}
-        <RecentClicksWidget websiteId={activeWebsiteId as string} />
-        <TrackerRulesWidget websiteId={activeWebsiteId as string} />
-        <LoginEventsWidget websiteId={activeWebsiteId as string} />
-        {/* <ClickedLinksWidget
-          clickedLinks={websiteInfo?.analytics?.clickedLinks}
-          loading={loading}
-        /> */}
+        {/* <RecentClicksWidget websiteId={activeWebsiteId as string} /> */}
         <VisitorPageviewsWidget
           visitorPageviews={websiteInfo?.analytics?.visitorPageviews}
           loading={loading}
           websiteId={activeWebsiteId as string}
           liveUsers={liveUser}
         />
+        <TrackerRulesWidget websiteId={activeWebsiteId as string} />
+        {/* <LoginEventsWidget websiteId={activeWebsiteId as string} /> */}
+        {/* <ClickedLinksWidget
+          clickedLinks={websiteInfo?.analytics?.clickedLinks}
+          loading={loading}
+        /> */}        
       </div>
     </div>
   );
