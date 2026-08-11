@@ -5,7 +5,8 @@ import {
   websiteTable,
 } from "@/configs/schema";
 import { and, eq } from "drizzle-orm";
-import { clerkClient, verifyWebhook } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
+import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
