@@ -91,5 +91,32 @@ export type LiveUserType = {
   browser: string;
 };
 
+export type TrackerRuleSource = "manual" | "sdk" | "webhook" | "server";
+
+export type TrackerRuleType = {
+  id: number;
+  websiteId: string;
+  eventName: string;
+  enabled: boolean;
+  source: TrackerRuleSource;
+  filtersJson?: string | null;
+  createdBy?: string | null;
+  createdAt: number;
+};
+
+export type TrackerEventType = {
+  id: number;
+  websiteId: string;
+  trackerRuleId?: number | null;
+  eventName: string;
+  userId?: string | null;
+  userEmailHash?: string | null;
+  visitorId?: string | null;
+  sessionId?: string | null;
+  source: TrackerRuleSource;
+  metaJson?: string | null;
+  createdAt: number;
+};
+
 export const IMAGE_URL_FOR_DOMAINS =
   "https://icons.duckduckgo.com/ip3/<domain>.com.ico";

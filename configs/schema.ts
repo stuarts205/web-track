@@ -78,3 +78,28 @@ export const clicksTable = pgTable("clicks", {
   elementClass: varchar({ length: 1024 }),
   createdAt: bigint({ mode: "number" }).notNull(),
 });
+
+export const trackerRulesTable = pgTable("tracker_rules", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  websiteId: varchar({ length: 255 }).notNull(),
+  eventName: varchar({ length: 255 }).notNull(),
+  enabled: boolean().default(true).notNull(),
+  source: varchar({ length: 100 }).notNull().default("manual"),
+  filtersJson: varchar({ length: 4096 }),
+  createdBy: varchar({ length: 255 }),
+  createdAt: bigint({ mode: "number" }).notNull(),
+});
+
+export const trackerEventsTable = pgTable("tracker_events", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  websiteId: varchar({ length: 255 }).notNull(),
+  trackerRuleId: integer(),
+  eventName: varchar({ length: 255 }).notNull(),
+  userId: varchar({ length: 255 }),
+  userEmailHash: varchar({ length: 255 }),
+  visitorId: varchar({ length: 255 }),
+  sessionId: varchar({ length: 255 }),
+  source: varchar({ length: 100 }).notNull().default("manual"),
+  metaJson: varchar({ length: 8192 }),
+  createdAt: bigint({ mode: "number" }).notNull(),
+});

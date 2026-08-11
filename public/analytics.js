@@ -98,6 +98,38 @@
     });
   };
 
+  const sendCustomEvent = (payload) => {
+    fetch("https://web-track-seven.vercel.app/api/events", {
+      method: "POST",
+      keepalive: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }).catch(() => {
+      // Do not surface custom event tracking errors to host websites.
+    });
+  };
+
+  // Public API for manual custom event tracking from host websites.
+  window.webtrack = window.webtrack || {};
+  window.webtrack.track = (eventName, meta) => {
+    if (!eventName || typeof eventName !== "string") return;
+
+    sendCustomEvent({
+      websiteId,
+      eventName: eventName.trim(),
+      source: "sdk",
+      visitorId,
+      timestamp: Math.floor(Date.now() / 1000),
+      meta: {
+        ...(meta && typeof meta === "object" ? meta : {}),
+        pageUrl: window.location.href,
+        referrer,
+      },
+    });
+  };
+
   const getElementLabel = (element, fallback) => {
     if (!element) return fallback;
 
@@ -223,6 +255,37 @@
   const handleLinkClick = (event) => {
     const eventTarget = event.target;
     if (!eventTarget || !eventTarget.closest) return;
+
+    const customEventElement = eventTarget.closest("[data-webtrack-event]");
+    if (customEventElement) {
+      const eventName = customEventElement
+        .getAttribute("data-webtrack-event")
+        ?.trim();
+
+      if (eventName) {
+        const customLabel =
+          customEventElement.getAttribute("data-webtrack-label") ||
+          getElementLabel(customEventElement, "Untitled Event");
+
+        sendCustomEvent({
+          websiteId,
+          eventName,
+          source: "sdk",
+          visitorId,
+          timestamp: Math.floor(Date.now() / 1000),
+          meta: {
+            label: customLabel.slice(0, 255),
+            elementId: customEventElement.id || "",
+            elementClass: (customEventElement.className || "")
+              .toString()
+              .trim()
+              .slice(0, 255),
+            pageUrl: window.location.href,
+            referrer,
+          },
+        });
+      }
+    }
 
     const anchor = eventTarget.closest("a[href]");
     const image = eventTarget.closest("img");

@@ -16,6 +16,8 @@ import { ClickedLinksWidget } from "./_components/clicked-links-widget";
 import { VisitorPageviewsWidget } from "./_components/visitor-pageviews-widget";
 import { RecentClicksWidget } from "./_components/recent-clicks-widget";
 import { SwipeCountWidget } from "./_components/swipe-count-widget";
+import { LoginEventsWidget } from "./_components/login-events-widget";
+import { TrackerRulesWidget } from "./_components/tracker-rules-widget";
 
 function WebsiteDetail() {
   const { websiteId } = useParams();
@@ -101,6 +103,8 @@ function WebsiteDetail() {
           loading={loading}
         /> */}
         <RecentClicksWidget websiteId={activeWebsiteId as string} />
+        <TrackerRulesWidget websiteId={activeWebsiteId as string} />
+        <LoginEventsWidget websiteId={activeWebsiteId as string} />
         {/* <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
           loading={loading}
