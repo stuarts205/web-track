@@ -99,7 +99,7 @@ export const TrackerRulesWidget = ({ websiteId }: TrackerRulesWidgetProps) => {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_150px_auto]">
           <Input
             placeholder="Event name (example: user_login)"
-            value={""}
+            value={eventName}
             onChange={(e) => setEventName(e.target.value)}
           />
           <select

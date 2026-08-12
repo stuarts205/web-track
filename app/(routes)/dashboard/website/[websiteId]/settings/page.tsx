@@ -75,7 +75,7 @@ const WebsiteSettings = () => {
 
   return (
     <div className="w-full mt-10 mb-20">
-      <Button>
+      <Button onClick={() => router.back()} className="mt-5 cursor-pointer">
         <ArrowLeft /> Back
       </Button>
       <h2 className="font-bold text-2xl mt-4">
