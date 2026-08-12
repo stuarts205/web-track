@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { TrackerRulesWidget } from "../_components/tracker-rules-widget";
 
 const WebsiteSettings = () => {
   const { websiteId } = useParams();
@@ -108,6 +109,17 @@ const WebsiteSettings = () => {
           </Card>
           <Card className="mt-4">
             <CardHeader>
+              <CardTitle>Customer Trakcking</CardTitle>
+              <CardDescription>
+                You can track your customer by adding a unique id to the script
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TrackerRulesWidget websiteId={websiteId as string} />
+            </CardContent>
+          </Card>
+          <Card className="mt-4">
+            <CardHeader>
               <CardTitle>Domain</CardTitle>
               <CardDescription>
                 You main website domain for analytics tracking.
@@ -124,7 +136,7 @@ const WebsiteSettings = () => {
                 <Button>Save</Button>
               </div>
             </CardContent>
-          </Card>
+          </Card>          
         </TabsContent>
         <TabsContent value="other">
           <Card>

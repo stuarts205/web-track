@@ -109,7 +109,7 @@ function WebsiteDetail() {
           websiteId={activeWebsiteId as string}
           liveUsers={liveUser}
         />
-        <TrackerRulesWidget websiteId={activeWebsiteId as string} />
+        {/* <TrackerRulesWidget websiteId={activeWebsiteId as string} /> */}
         {/* <LoginEventsWidget websiteId={activeWebsiteId as string} /> */}
         {/* <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
