@@ -178,6 +178,22 @@ export async function GET(req: NextRequest) {
       domainName: getDomainName(name),
     }));
 
+  const normalizeEpochMilliseconds = (
+    raw: string | number | null | undefined,
+  ) => {
+    const value = Number(raw);
+
+    if (!Number.isFinite(value) || value <= 0) return null;
+
+    // Support legacy second-based timestamps while preferring millisecond precision.
+    return value < 1_000_000_000_000 ? value * 1000 : value;
+  };
+
+  const normalizeEpochSeconds = (raw: string | number | null | undefined) => {
+    const epochMs = normalizeEpochMilliseconds(raw);
+    return epochMs ? Math.floor(epochMs / 1000) : null;
+  };
+
   const last24HoursUnix = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
 
   for (const site of websites) {
@@ -233,7 +249,9 @@ export async function GET(req: NextRequest) {
     const lastSeenByVisitor = liveUsers.reduce(
       (acc, user) => {
         if (!user.visitorId) return acc;
-        acc[user.visitorId] = Number(user.lastSeen);
+
+        const normalizedLastSeen = normalizeEpochMilliseconds(user.lastSeen);
+        acc[user.visitorId] = normalizedLastSeen ?? 0;
         return acc;
       },
       {} as Record<string, number>,
@@ -406,16 +424,42 @@ export async function GET(req: NextRequest) {
 
     const hourlyVisitors: any[] = [];
 
-    if (views.length > 0) {
+    const activityPoints = [
+      ...views
+        .map((v) => ({
+          visitorId: v.visitorId,
+          timestamp: Number(v.entryTime),
+        }))
+        .filter(
+          (point): point is { visitorId: string; timestamp: number } =>
+            Boolean(point.visitorId) && Number.isFinite(point.timestamp),
+        ),
+      ...liveUsers
+        .map((user) => ({
+          visitorId: user.visitorId,
+          timestamp: normalizeEpochSeconds(user.lastSeen),
+        }))
+        .filter(
+          (point): point is { visitorId: string; timestamp: number } =>
+            Boolean(point.visitorId) && Number.isFinite(point.timestamp),
+        ),
+    ];
+
+    if (activityPoints.length > 0) {
       const start = fromUnix
         ? new Date(fromUnix * 1000)
-        : new Date(Math.min(...views.map((v) => Number(v.entryTime) * 1000)));
+        : new Date(
+            Math.min(...activityPoints.map((point) => point.timestamp * 1000)),
+          );
 
       const end = toUnix
         ? new Date(toUnix * 1000)
-        : new Date(Math.max(...views.map((v) => Number(v.entryTime) * 1000)));
+        : new Date(
+            Math.max(...activityPoints.map((point) => point.timestamp * 1000)),
+          );
 
-      let cursor = new Date(start);
+      const cursor = new Date(start);
+      cursor.setMinutes(0, 0, 0);
 
       while (cursor <= end) {
         const local = toZonedTime(cursor, siteTZ);
@@ -438,13 +482,32 @@ export async function GET(req: NextRequest) {
         cursor.setHours(cursor.getHours() + 1);
       }
 
+      const addPointToHour = (visitor: string, timestamp: number) => {
+        if (
+          (fromUnix && timestamp < fromUnix) ||
+          (toUnix && timestamp > toUnix)
+        ) {
+          return;
+        }
+
+        const local = toZonedTime(new Date(timestamp * 1000), siteTZ);
+        const date = formatDateInTZ(local, siteTZ);
+        hourlyMap[`${date}-${local.getHours()}`]?.add(visitor);
+      };
+
       views.forEach((v) => {
         if (!v.entryTime || !v.visitorId) return;
 
-        const local = toZonedTime(new Date(Number(v.entryTime) * 1000), siteTZ);
+        addPointToHour(v.visitorId, Number(v.entryTime));
+      });
 
-        const date = formatDateInTZ(local, siteTZ);
-        hourlyMap[`${date}-${local.getHours()}`]?.add(v.visitorId);
+      liveUsers.forEach((user) => {
+        if (!user.visitorId) return;
+
+        const normalizedLastSeen = normalizeEpochSeconds(user.lastSeen);
+        if (!normalizedLastSeen) return;
+
+        addPointToHour(user.visitorId, normalizedLastSeen);
       });
 
       hourlyVisitors.forEach((h) => {
@@ -461,6 +524,24 @@ export async function GET(req: NextRequest) {
       const date = formatDateInTZ(local, siteTZ);
       dailyMap[date] ??= new Set();
       dailyMap[date].add(v.visitorId);
+    });
+
+    liveUsers.forEach((user) => {
+      if (!user.visitorId) return;
+
+      const normalizedLastSeen = normalizeEpochSeconds(user.lastSeen);
+      if (!normalizedLastSeen) return;
+      if (
+        (fromUnix && normalizedLastSeen < fromUnix) ||
+        (toUnix && normalizedLastSeen > toUnix)
+      ) {
+        return;
+      }
+
+      const local = toZonedTime(new Date(normalizedLastSeen * 1000), siteTZ);
+      const date = formatDateInTZ(local, siteTZ);
+      dailyMap[date] ??= new Set();
+      dailyMap[date].add(user.visitorId);
     });
 
     const dailyVisitors = Object.entries(dailyMap).map(([date, set]) => ({

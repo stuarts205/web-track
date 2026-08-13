@@ -36,6 +36,7 @@ interface VisitorPageviewsWidgetProps {
   loading: boolean;
   websiteId: string;
   liveUsers?: LiveUserType[] | null;
+  timezone?: string;
 }
 
 export const VisitorPageviewsWidget = ({
@@ -43,6 +44,7 @@ export const VisitorPageviewsWidget = ({
   loading,
   websiteId,
   liveUsers,
+  timezone,
 }: VisitorPageviewsWidgetProps) => {
   const sortedVisitorPageviews = useMemo(() => {
     if (!visitorPageviews) return [];
@@ -94,6 +96,28 @@ export const VisitorPageviewsWidget = ({
       .filter((id): id is string => Boolean(id)),
   );
 
+  const formatTimestamp = (timestampMs: number | null | undefined) => {
+    if (!timestampMs) return "-";
+
+    const value = Number(timestampMs);
+    if (!Number.isFinite(value) || value <= 0) return "-";
+
+    return new Date(value).toLocaleString("en-US", {
+      ...(timezone ? { timeZone: timezone } : {}),
+    });
+  };
+
+  const formatTimestampSeconds = (timestampSec: number | null | undefined) => {
+    if (!timestampSec) return "-";
+
+    const value = Number(timestampSec);
+    if (!Number.isFinite(value) || value <= 0) return "-";
+
+    return new Date(value * 1000).toLocaleString("en-US", {
+      ...(timezone ? { timeZone: timezone } : {}),
+    });
+  };
+
   const handleVisitorClick = async (visitorId: string) => {
     if (expandedVisitorId === visitorId) {
       setExpandedVisitorId(null);
@@ -128,9 +152,7 @@ export const VisitorPageviewsWidget = ({
         },
         {
           label: "last_seen",
-          value: visitorDetail.last_seen
-            ? new Date(Number(visitorDetail.last_seen)).toLocaleString()
-            : "-",
+          value: formatTimestamp(Number(visitorDetail.last_seen)),
         },
         {
           label: "image_swipes_total",
@@ -250,7 +272,7 @@ export const VisitorPageviewsWidget = ({
 
               {isActive ? (
                 <div className="px-6 py-2">
-                  <div >
+                  <div>
                     <p className="mb-3 text-sm font-semibold">
                       Details for Visitor ID {expandedVisitorId}
                     </p>
@@ -315,9 +337,9 @@ export const VisitorPageviewsWidget = ({
                               {visitorDetail.clickedImages.map(
                                 (image, index) => {
                                   const clickedAtText = image.clickedAt
-                                    ? new Date(
-                                        Number(image.clickedAt) * 1000,
-                                      ).toLocaleString()
+                                    ? formatTimestampSeconds(
+                                        Number(image.clickedAt),
+                                      )
                                     : "Unknown time";
 
                                   return (
@@ -364,9 +386,9 @@ export const VisitorPageviewsWidget = ({
                               {visitorDetail.clickedEvents.map(
                                 (event, index) => {
                                   const clickedAtText = event.clickedAt
-                                    ? new Date(
-                                        Number(event.clickedAt) * 1000,
-                                      ).toLocaleString()
+                                    ? formatTimestampSeconds(
+                                        Number(event.clickedAt),
+                                      )
                                     : "Unknown time";
 
                                   const displayLabel =

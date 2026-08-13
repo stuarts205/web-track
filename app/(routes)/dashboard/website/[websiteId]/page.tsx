@@ -108,13 +108,14 @@ function WebsiteDetail() {
           loading={loading}
           websiteId={activeWebsiteId as string}
           liveUsers={liveUser}
+          timezone={websiteInfo?.website?.timezone}
         />
         {/* <TrackerRulesWidget websiteId={activeWebsiteId as string} /> */}
         {/* <LoginEventsWidget websiteId={activeWebsiteId as string} /> */}
         {/* <ClickedLinksWidget
           clickedLinks={websiteInfo?.analytics?.clickedLinks}
           loading={loading}
-        /> */}        
+        /> */}
       </div>
     </div>
   );
