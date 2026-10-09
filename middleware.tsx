@@ -1,21 +1,36 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { getSessionCookie } from "better-auth/cookies";
+import { NextRequest, NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/",
-  "/api/track",
-  "/api/clicks",
-  "/api/live-user",
-  "/api/events",
-  "/api/webhooks(.*)",
-]);
+const publicRoutes = [
+  /^\/sign-in(\/.*)?$/,
+  /^\/sign-up(\/.*)?$/,
+  /^\/$/,
+  /^\/api\/auth(\/.*)?$/,
+  /^\/api\/track$/,
+  /^\/api\/clicks$/,
+  /^\/api\/live-user$/,
+  /^\/api\/events$/,
+];
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+const isPublicRoute = (req: NextRequest) =>
+  publicRoutes.some((route) => route.test(req.nextUrl.pathname));
+
+export default function middleware(req: NextRequest) {
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
   }
-});
+
+  // Optimistic check only (cookie presence). Real session validation happens
+  // in the API routes and the dashboard layout via auth.api.getSession.
+  if (!getSessionCookie(req)) {
+    if (req.nextUrl.pathname.startsWith("/api")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.redirect(new URL("/sign-in", req.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

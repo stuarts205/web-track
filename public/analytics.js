@@ -29,6 +29,15 @@
     return;
   }
 
+  // Send data back to whichever origin served this script, so local dev
+  // reports to localhost and embeds of the hosted script report to production.
+  let apiOrigin = "https://web-track-seven.vercel.app";
+  try {
+    if (script && script.src) apiOrigin = new URL(script.src).origin;
+  } catch {
+    // Keep the default origin if the script src cannot be parsed.
+  }
+
   const entryTime = Math.floor(Date.now() / 1000);
   const referrer = document.referrer || "Direct";
 
@@ -53,7 +62,7 @@
     refParams,
   };
 
-  fetch(`https://web-track-seven.vercel.app/api/track`, {
+  fetch(`${apiOrigin}/api/track`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -86,7 +95,7 @@
   };
 
   const sendClickEvent = (payload) => {
-    fetch("https://web-track-seven.vercel.app/api/clicks", {
+    fetch(`${apiOrigin}/api/clicks`, {
       method: "POST",
       keepalive: true,
       headers: {
@@ -99,7 +108,7 @@
   };
 
   const sendCustomEvent = (payload) => {
-    fetch("https://web-track-seven.vercel.app/api/events", {
+    fetch(`${apiOrigin}/api/events`, {
       method: "POST",
       keepalive: true,
       headers: {
@@ -436,7 +445,7 @@
     const exitTime = Math.floor(Date.now() / 1000);
     totalActiveTime += Math.floor(Date.now() / 1000) - activeStartTime;
 
-    fetch(`https://web-track-seven.vercel.app/api/track`, {
+    fetch(`${apiOrigin}/api/track`, {
       method: "POST",
       keepalive: true,
       headers: {
@@ -457,7 +466,7 @@
   window.addEventListener("beforeunload", handleExit);
 
   const sendLivePing = () => {
-    fetch("https://web-track-seven.vercel.app/api/live-user", {
+    fetch(`${apiOrigin}/api/live-user`, {
       method: "POST",
       keepalive: true,
       headers: {

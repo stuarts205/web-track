@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
-import Provider from "./provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +31,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={AppFont.className}>
-          <Provider>{children}</Provider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <head>
+        <script
+          defer
+          data-website-id="16576539-7a37-4239-9a9f-047a44f672fe"
+          data-domain="localhost:3000"
+          src="http://localhost:3000/analytics.js"
+        ></script>
+      </head>
+      <body className={AppFont.className}>
+        <div>{children}</div>
+      </body>
+    </html>
   );
 }

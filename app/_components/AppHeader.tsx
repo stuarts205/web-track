@@ -1,9 +1,12 @@
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
+import UserButton from "./UserButton";
 
 function AppHeader() {
-  const { user } = useUser();
+  const { data } = authClient.useSession();
+  const user = data?.user;
   return (
     <header className="z-50 w-full bg-white py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 sm:py-0 landscape:py-1">
       <nav
@@ -29,9 +32,9 @@ function AppHeader() {
           className="hs-collapse basis-full overflow-hidden transition-all duration-300 sm:block sm:basis-auto"
         >
           <div className="mt-2 flex items-center justify-end sm:mt-0 sm:cursor-pointer sm:ps-7 landscape:mt-1">
-            {/* Clerk Authentication  */}
+            {/* Better Auth Authentication  */}
             {!user ? (
-              <SignInButton mode="modal" signUpForceRedirectUrl={"/dashboard"}>
+              <Link href="/sign-in">
                 <div className="flex items-center gap-x-2 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 sm:ms-4 sm:my-4 sm:border-s sm:border-gray-300 sm:py-0 sm:ps-6 dark:border-neutral-700 dark:text-neutral-400 dark:hover:text-blue-500 landscape:py-1 landscape:sm:my-2">
                   <svg
                     className="size-4 shrink-0"
@@ -45,7 +48,7 @@ function AppHeader() {
                   </svg>
                   Get Started
                 </div>
-              </SignInButton>
+              </Link>
             ) : (
               <UserButton />
             )}

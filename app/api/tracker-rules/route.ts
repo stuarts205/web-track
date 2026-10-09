@@ -1,7 +1,7 @@
 import { db } from "@/configs/db";
 import { trackerRulesTable, websiteTable } from "@/configs/schema";
 import { and, asc, eq } from "drizzle-orm";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 const ensureOwnership = async (websiteId: string, email: string) => {
@@ -20,8 +20,8 @@ const ensureOwnership = async (websiteId: string, email: string) => {
 };
 
 export async function GET(req: NextRequest) {
-  const user = await currentUser();
-  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  const session = await auth.api.getSession({ headers: req.headers });
+  const userEmail = session?.user.email;
 
   if (!userEmail) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -50,8 +50,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const user = await currentUser();
-  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  const session = await auth.api.getSession({ headers: req.headers });
+  const userEmail = session?.user.email;
 
   if (!userEmail) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -112,8 +112,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const user = await currentUser();
-  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  const session = await auth.api.getSession({ headers: req.headers });
+  const userEmail = session?.user.email;
 
   if (!userEmail) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

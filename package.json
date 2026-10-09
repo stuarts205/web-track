@@ -10,7 +10,6 @@
     "backfill:image-urls": "tsx scripts/backfill-image-click-urls.ts"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.36.1",
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -40,6 +39,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "axios": "^1.13.2",
+    "better-auth": "^1.7.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

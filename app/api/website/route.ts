@@ -6,7 +6,7 @@ import {
   websiteTable,
 } from "@/configs/schema";
 import { NextRequest, NextResponse } from "next/server";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@/lib/auth";
 import { eq, and, desc, sql, gte, lte } from "drizzle-orm";
 import { toZonedTime } from "date-fns-tz";
 import { formatDateInTZ, getSafeTimeZone } from "@/lib/utils";
@@ -14,7 +14,12 @@ import { formatDateInTZ, getSafeTimeZone } from "@/lib/utils";
 export async function POST(req: NextRequest) {
   const { websiteId, domain, timezone, enableLocalhostTracking } =
     await req.json();
-  const user = await currentUser();
+  const session = await auth.api.getSession({ headers: req.headers });
+  const user = session?.user;
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const existingDomain = await db
     .select()
@@ -24,7 +29,7 @@ export async function POST(req: NextRequest) {
         eq(websiteTable?.domain, domain),
         eq(
           websiteTable?.userEmail,
-          user?.primaryEmailAddress?.emailAddress as string,
+          user.email,
         ),
       ),
     );
@@ -43,7 +48,7 @@ export async function POST(req: NextRequest) {
       domain,
       timezone,
       enableLocalhostTracking,
-      userEmail: user?.primaryEmailAddress?.emailAddress as string,
+      userEmail: user.email,
     })
     .returning();
 
@@ -51,7 +56,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const user = await currentUser();
+  const session = await auth.api.getSession({ headers: req.headers });
+  const user = session?.user;
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -78,7 +84,7 @@ export async function GET(req: NextRequest) {
         .from(websiteTable)
         .where(
           and(
-            eq(websiteTable.userEmail, user.primaryEmailAddress!.emailAddress),
+            eq(websiteTable.userEmail, user.email),
             eq(websiteTable.websiteId, websiteId),
           ),
         );
@@ -90,7 +96,7 @@ export async function GET(req: NextRequest) {
       .select()
       .from(websiteTable)
       .where(
-        eq(websiteTable.userEmail, user.primaryEmailAddress!.emailAddress),
+        eq(websiteTable.userEmail, user.email),
       );
 
     return NextResponse.json(websites);
@@ -102,10 +108,10 @@ export async function GET(req: NextRequest) {
     .where(
       websiteId
         ? and(
-            eq(websiteTable.userEmail, user.primaryEmailAddress!.emailAddress),
+            eq(websiteTable.userEmail, user.email),
             eq(websiteTable.websiteId, websiteId),
           )
-        : eq(websiteTable.userEmail, user.primaryEmailAddress!.emailAddress),
+        : eq(websiteTable.userEmail, user.email),
     )
     .orderBy(sql`${websiteTable.id} DESC`);
 
@@ -645,7 +651,12 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const { websiteId } = await req.json();
-  const user = await currentUser();
+  const session = await auth.api.getSession({ headers: req.headers });
+  const user = session?.user;
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const result = await db
     .delete(websiteTable)
@@ -654,7 +665,7 @@ export async function DELETE(req: NextRequest) {
         eq(websiteTable.websiteId, websiteId),
         eq(
           websiteTable.userEmail,
-          user?.primaryEmailAddress?.emailAddress as string,
+          user.email,
         ),
       ),
     );
