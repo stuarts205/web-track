@@ -23,6 +23,8 @@ export type AnalyticsType = {
   totalActiveTime: number;
   totalSessions: number;
   totalVisitors: number;
+  last24HoursVisitors: number;
+  allTimeVisitors: number;
   hourlyVisitors: HourlyVisitorsType[];
   dailyVisitors: DailyVisitorsType[];
   referrals: ReferralsType[];

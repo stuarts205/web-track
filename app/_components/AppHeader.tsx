@@ -10,7 +10,7 @@ function AppHeader() {
   return (
     <header className="z-50 w-full bg-white py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 sm:py-0 landscape:py-1">
       <nav
-        className="relative mx-auto w-full max-w-7xl px-1 py-3 sm:flex sm:items-center sm:justify-between sm:px-4 lg:px-6 landscape:py-2"
+        className="relative flex w-full items-center justify-between px-4 py-3 sm:px-6 lg:px-8 landscape:py-2"
         aria-label="Global"
       >
         <div className="flex items-center justify-between">
@@ -29,9 +29,9 @@ function AppHeader() {
         </div>
         <div
           id="navbar-collapse-with-animation"
-          className="hs-collapse basis-full overflow-hidden transition-all duration-300 sm:block sm:basis-auto"
+          className="hs-collapse overflow-hidden transition-all duration-300"
         >
-          <div className="mt-2 flex items-center justify-end sm:mt-0 sm:cursor-pointer sm:ps-7 landscape:mt-1">
+          <div className="flex items-center justify-end sm:cursor-pointer sm:ps-7">
             {/* Better Auth Authentication  */}
             {!user ? (
               <Link href="/sign-in">

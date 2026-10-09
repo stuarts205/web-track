@@ -280,6 +280,18 @@ export async function GET(req: NextRequest) {
         .filter((visitorId): visitorId is string => Boolean(visitorId)),
     ).size;
 
+    const [{ count: allTimeVisitors }] = await db
+      .select({
+        count: sql<number>`count(distinct ${pageViewTable.visitorId})::int`,
+      })
+      .from(pageViewTable)
+      .where(
+        and(
+          eq(pageViewTable.websiteId, site.websiteId),
+          eq(pageViewTable.type, "entry"),
+        ),
+      );
+
     const makeSetMap = () => ({}) as Record<string, Set<string>>;
     const countryVisitors = makeSetMap();
     const cityVisitors = makeSetMap();
@@ -624,6 +636,7 @@ export async function GET(req: NextRequest) {
       analytics: {
         totalVisitors,
         last24HoursVisitors,
+        allTimeVisitors,
         totalSessions,
         totalActiveTime,
         avgActiveTime,

@@ -19,6 +19,7 @@ const chartConfig = {
 
 const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
   const hourlyData = websiteinfo?.analytics?.hourlyVisitors;
+  console.log(websiteinfo);
   const chartData =
     hourlyData.length == 1
       ? [
@@ -75,9 +76,16 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
               />
             </AreaChart>
           </ChartContainer>
-          <h2 className="text-sm mt-2">
-            <strong>{websiteinfo?.analytics?.totalVisitors}</strong> visitors
-          </h2>
+          <div className="mt-2 flex flex-col gap-1 text-sm">
+            <h2>
+              <strong>{websiteinfo?.analytics?.last24HoursVisitors ?? 0}</strong>{" "}
+              visitors in the last 24 hours
+            </h2>
+            <h2>
+              <strong>{websiteinfo?.analytics?.allTimeVisitors ?? 0}</strong>{" "}
+              unique visitors all time
+            </h2>
+          </div>
         </CardContent>
       </Card>
     </Link>

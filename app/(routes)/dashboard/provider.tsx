@@ -4,9 +4,11 @@ import React from "react";
 
 const DashboardProvider = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="px-3 sm:px-6 md:px-10 lg:px-16 xl:px-24 2xl:px-32">
+    <div>
       <AppHeader />
-      {children}
+      <div className="px-3 sm:px-6 md:px-10 lg:px-16 xl:px-24 2xl:px-32">
+        {children}
+      </div>
     </div>
   );
 };

@@ -46,12 +46,12 @@ export const SignInView = () => {
       {
         email: data.email,
         password: data.password,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       },
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
+          router.push("/dashboard");
         },
         onError: (err) => {
           setError(err.error.message ?? "Failed to sign in");

@@ -9,7 +9,7 @@ export default async function Page() {
   });
 
   if (session) {
-    redirect("/");
+    redirect("/dashboard");
   }
 
   return (
