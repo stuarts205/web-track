@@ -31,7 +31,7 @@
 
   // Send data back to whichever origin served this script, so local dev
   // reports to localhost and embeds of the hosted script report to production.
-  let apiOrigin = "https://web-track-seven.vercel.app";
+  let apiOrigin = "https://webtracking.io";
   try {
     if (script && script.src) apiOrigin = new URL(script.src).origin;
   } catch {

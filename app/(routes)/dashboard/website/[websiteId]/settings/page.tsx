@@ -52,7 +52,7 @@ const WebsiteSettings = () => {
       defer
       data-website-id="${websiteId}"
       data-domain="${websiteDetail?.domain}"
-      src="https://web-track-seven.vercel.app/analytics.js">
+      src="https://webtracking.io/analytics.js">
 </script>`;
 
   const copyScript = async () => {
