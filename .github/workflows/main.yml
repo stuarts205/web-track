@@ -52,22 +52,35 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Connect to Tailscale
-        uses: tailscale/github-action@v2
-        with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pre-trust the Pi's host key so ssh doesn't prompt
+          ssh-keyscan -p "${{ secrets.PI_PORT || 22 }}" "${{ secrets.PI_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Deploy to Raspberry Pi over SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PI_HOST }}
-          username: ${{ secrets.PI_USER }}
-          key: ${{ secrets.PI_SSH_KEY }}
-          port: ${{ secrets.PI_PORT || 22 }}
-          script: |
+        env:
+          PI_HOST: ${{ secrets.PI_HOST }}
+          PI_USER: ${{ secrets.PI_USER }}
+          PI_PORT: ${{ secrets.PI_PORT || 22 }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_ACTOR: ${{ github.actor }}
+        run: |
+          set -e
+          # Bracket the host ourselves only if it's a raw IPv6 literal (contains a colon and isn't already bracketed)
+          if [[ "$PI_HOST" == *:* && "$PI_HOST" != \[*\] ]]; then
+            TARGET="[$PI_HOST]"
+          else
+            TARGET="$PI_HOST"
+          fi
+
+          ssh -i ~/.ssh/deploy_key -p "$PI_PORT" -o StrictHostKeyChecking=accept-new "$PI_USER@$TARGET" bash -s <<EOF
             set -e
             cd ~/sites/web-track
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "$GH_TOKEN" | docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             docker compose pull
             docker compose up -d
             docker image prune -f
+          EOF
