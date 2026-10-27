@@ -4,14 +4,14 @@ services:
       context: .
       target: runner
     restart: unless-stopped
-    ports:
-      # Host port 3003 (what Caddy proxies to) -> container port 3000.
-      - "3003:3000"
+    # Share the Pi's network so the app reaches Postgres (192.168.1.237) exactly
+    # like a non-Docker process would. `ports:` is not used in host mode.
+    network_mode: host
     # Uses your existing .env (DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, ...).
     env_file: .env
-    # Override any PORT/HOSTNAME in .env so the server listens where the port mapping expects.
+    # Caddy proxies to port 3003; these override any PORT/HOSTNAME in .env.
     environment:
-      PORT: "3000"
+      PORT: "3003"
       HOSTNAME: "0.0.0.0"
 
   # Optional: sync configs/schema.ts to the database after schema changes.
@@ -20,5 +20,6 @@ services:
     build:
       context: .
       target: migrator
+    network_mode: host
     env_file: .env
     profiles: ["tools"]
