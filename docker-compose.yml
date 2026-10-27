@@ -9,6 +9,10 @@ services:
       - "3003:3000"
     # Uses your existing .env (DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, ...).
     env_file: .env
+    # Override any PORT/HOSTNAME in .env so the server listens where the port mapping expects.
+    environment:
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
 
   # Optional: sync configs/schema.ts to the database after schema changes.
   #   docker compose run --rm migrate
