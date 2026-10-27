@@ -5,7 +5,8 @@ services:
       target: runner
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      # Host port 3003 (what Caddy proxies to) -> container port 3000.
+      - "3003:3000"
     # Uses your existing .env (DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, ...).
     env_file: .env
 
