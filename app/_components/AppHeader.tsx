@@ -15,16 +15,18 @@ function AppHeader() {
       >
         <div className="flex items-center justify-between">
           <div className="flex min-w-0 items-center gap-2">
-            <Image
-              src={"/logo2.png"}
-              alt="logo"
-              width={150}
-              height={150}
-              className="h-8 w-8 shrink-0 sm:h-10 sm:w-10"
-            />
-            <h2 className="truncate text-xl font-medium sm:text-2xl">
+            <Link href="/dashboard">
+              <Image
+                src={"/logo2.png"}
+                alt="logo"
+                width={150}
+                height={150}
+                className="h-8 w-8 shrink-0 sm:h-10 sm:w-10"
+              />
+              <h2 className="truncate text-xl font-medium sm:text-2xl">
               WebTrack
             </h2>
+            </Link>            
           </div>
         </div>
         <div
