@@ -9,7 +9,6 @@ coverage
 .clerk
 .env
 .env.*
-!.env.docker.example
 *.tsbuildinfo
 npm-debug.log*
 Dockerfile
