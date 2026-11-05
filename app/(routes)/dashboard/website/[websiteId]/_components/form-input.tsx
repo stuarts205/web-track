@@ -42,21 +42,38 @@ export const FormInput = ({
   const [analysicType, setAnalysicType] =
     useState<WebsiteAnalyticsFormDataType["analysicType"]>("hourly");
 
-  const handleDateChange = (selected?: DateRange) => {
-    if (!selected?.from) return;
-    if (selected?.from && !selected?.to) {
-      setDate({ from: selected.from });
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [rangeStart, setRangeStart] = useState<Date | null>(null);
+
+  const handleCalendarOpenChange = (open: boolean) => {
+    setCalendarOpen(open);
+    if (open) setRangeStart(null);
+  };
+
+  // First click picks the start date, second click picks the end date and closes the calendar.
+  const handleDateChange = (_selected: DateRange | undefined, clicked: Date) => {
+    if (!rangeStart) {
+      setRangeStart(clicked);
+      setDate({ from: clicked });
       return;
     }
-    setDate({ from: selected.from, to: selected.to });
+
+    const [from, to] =
+      clicked < rangeStart ? [clicked, rangeStart] : [rangeStart, clicked];
+    setDate({ from, to });
+    setRangeStart(null);
+    setCalendarOpen(false);
   };
 
   const handleTodayClick = () => {
     setDate({ from: today });
+    setRangeStart(null);
+    setCalendarOpen(false);
   };
 
   const handleResetClick = () => {
     setDate({ from: today });
+    setRangeStart(null);
   };
 
   useEffect(() => {
@@ -88,7 +105,7 @@ export const FormInput = ({
           </SelectContent>
         </Select>
 
-        <Popover>
+        <Popover open={calendarOpen} onOpenChange={handleCalendarOpenChange}>
           <PopoverTrigger asChild>
             <Button
               variant={"outline"}

@@ -45,9 +45,12 @@ export const PageViewAnalytics = ({
           />
           <LabelCountItem
             label="Total Active Time"
-            value={
-              (Number(webAnalytics?.totalActiveTime) / 60).toFixed(1) + "min"
-            }
+            value={(() => {
+              const minutes = Number(webAnalytics?.totalActiveTime) / 60;
+              return minutes > 180
+                ? (minutes / 60).toFixed(1) + "hr"
+                : minutes.toFixed(1) + "min";
+            })()}
           />
           <LabelCountItem
             label="Average Active Time"

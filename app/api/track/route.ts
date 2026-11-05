@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-real-ip") ||
     "69.27.10.190";
 
-  const geoRes = await fetch(`http://ip-api.com/json/69.27.10.190`);
+  const geoRes = await fetch(`http://ip-api.com/json/${ip.trim()}`);
   const geoInfo = await geoRes.json();
 
   let result;

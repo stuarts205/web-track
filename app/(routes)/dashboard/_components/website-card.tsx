@@ -4,7 +4,7 @@ import { WebsiteInfoType, WebsiteType } from "@/configs/type";
 import { Globe } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, YAxis } from "recharts";
 
 interface WebsiteCardProps {
   websiteinfo: WebsiteInfoType;
@@ -18,8 +18,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
-  const hourlyData = websiteinfo?.analytics?.hourlyVisitors;
-  console.log(websiteinfo);
+  const hourlyData = websiteinfo?.analytics?.hourlyVisitors ?? [];
   const chartData =
     hourlyData.length == 1
       ? [
@@ -41,7 +40,7 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
       href={`/dashboard/website/${websiteinfo?.website?.websiteId}`}
       className="block"
     >
-      <Card>
+      <Card className="h-full overflow-hidden">
         <CardHeader>
           <CardTitle>
             <div className="flex min-w-0 items-center gap-2">
@@ -55,24 +54,29 @@ const WebsiteCard = ({ websiteinfo }: WebsiteCardProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig} className="max-h-20 w-full">
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto h-16 w-full sm:h-20"
+          >
             <AreaChart
               accessibilityLayer
               data={chartData}
               margin={{
-                left: 12,
-                right: 12,
-                top: 10,
-                bottom: 10,
+                left: 4,
+                right: 4,
+                top: 6,
+                bottom: 6,
               }}
             >
+              <YAxis hide domain={[0, "dataMax"]} />
               <Area
                 dataKey="count"
-                type="natural"
+                type="monotone"
                 fill="var(--color-primary)"
-                fillOpacity={0}
+                fillOpacity={0.1}
                 stroke="var(--color-primary)"
-                strokeWidth={4}
+                strokeWidth={3}
+                isAnimationActive={false}
               />
             </AreaChart>
           </ChartContainer>

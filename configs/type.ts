@@ -29,6 +29,7 @@ export type AnalyticsType = {
   dailyVisitors: DailyVisitorsType[];
   referrals: ReferralsType[];
   refParams: RefParamsType[];
+  countries: CountryType[];
   clickedLinks: ClickedLinkType[];
   visitorPageviews: VisitorPageviewType[];
   swipeStats: SwipeStatsType;
@@ -70,6 +71,12 @@ export type ReferralsType = {
   domainName: string;
   uv: number;
   name: string;
+};
+
+export type CountryType = {
+  name: string;
+  uv: number;
+  image: string;
 };
 
 export type RefParamsType = {

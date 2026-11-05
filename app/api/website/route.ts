@@ -248,6 +248,8 @@ export async function GET(req: NextRequest) {
       .select({
         visitorId: liveUserTable.visitorId,
         lastSeen: liveUserTable.last_seen,
+        country: liveUserTable.country,
+        countryCode: liveUserTable.countryCode,
       })
       .from(liveUserTable)
       .where(eq(liveUserTable.websiteId, site.websiteId));
@@ -324,13 +326,6 @@ export async function GET(req: NextRequest) {
         map[key].add(v.visitorId!);
       };
 
-      if (v.country) {
-        add(countryVisitors, v.country);
-
-        if (v.countryCode)
-          countryCodeMap[v.country] = v.countryCode.toUpperCase();
-      }
-
       if (v.city) {
         add(cityVisitors, v.city);
 
@@ -357,6 +352,18 @@ export async function GET(req: NextRequest) {
       if (v.utm_source) add(utmSourceVisitors, v.utm_source);
 
       if (v.url) add(urlVisitors, v.url);
+    });
+
+    // Country comes from live_user, which geolocates the visitor's real IP.
+    liveUsers.forEach((user) => {
+      if (!user.visitorId || !user.country) return;
+      if (!uniqueVisitors.has(user.visitorId)) return;
+
+      countryVisitors[user.country] ??= new Set();
+      countryVisitors[user.country].add(user.visitorId);
+
+      if (user.countryCode)
+        countryCodeMap[user.country] = user.countryCode.toUpperCase();
     });
 
     const toCountMap = (map: Record<string, Set<string>>) =>

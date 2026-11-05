@@ -18,6 +18,7 @@ import { RecentClicksWidget } from "./_components/recent-clicks-widget";
 import { SwipeCountWidget } from "./_components/swipe-count-widget";
 import { LoginEventsWidget } from "./_components/login-events-widget";
 import { TrackerRulesWidget } from "./_components/tracker-rules-widget";
+import { ViewsByCountryWidget } from "./_components/views-by-country-widget";
 
 function WebsiteDetail() {
   const { websiteId } = useParams();
@@ -109,6 +110,15 @@ function WebsiteDetail() {
           websiteId={activeWebsiteId as string}
           liveUsers={liveUser}
           timezone={websiteInfo?.website?.timezone}
+        />
+        <ViewsByCountryWidget
+          countries={websiteInfo?.analytics?.countries}
+          loading={loading}
+          showAll={
+            !!formData?.toDate &&
+            format(formData.fromDate, "yyyy-MM-dd") !==
+              format(formData.toDate, "yyyy-MM-dd")
+          }
         />
         {/* <TrackerRulesWidget websiteId={activeWebsiteId as string} /> */}
         {/* <LoginEventsWidget websiteId={activeWebsiteId as string} /> */}
